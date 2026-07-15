@@ -1,0 +1,2675 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CosmoExpress B2B - Wholesale Beauty Import</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#F43F5E',
+                            600: '#E11D48',
+                            700: '#BE123C',
+                            900: '#881337',
+                        },
+                        gold: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            width: 100%;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            scrollbar-width: none;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .notch {
+            width: 140px;
+            height: 28px;
+            background: #000;
+            border-bottom-left-radius: 18px;
+            border-bottom-right-radius: 18px;
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            z-index: 100;
+        }
+        /* Estilos para el Drawer */
+        .drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .drawer-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .drawer-panel {
+            position: fixed;
+            top: 0;
+            left: -320px;
+            width: 290px;
+            max-width: 85vw;
+            height: 100%;
+            background: #0f172a;
+            z-index: 1000;
+            transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            padding-top: 48px;
+            scrollbar-width: none;
+        }
+        .drawer-panel.open {
+            left: 0;
+        }
+        .drawer-panel::-webkit-scrollbar {
+            display: none;
+        }
+        .drawer-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            color: #94a3b8;
+            font-size: 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .drawer-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 20px;
+            color: #cbd5e1;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            border-left: 3px solid transparent;
+        }
+        .drawer-item:hover {
+            background: #1e293b;
+            color: #f1f5f9;
+        }
+        .drawer-item.active {
+            background: #1e293b;
+            color: #f43f5e;
+            border-left-color: #f43f5e;
+        }
+        .drawer-item i {
+            width: 20px;
+            text-align: center;
+            font-size: 15px;
+        }
+        .drawer-section-title {
+            font-size: 9px;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: 16px 20px 8px 20px;
+        }
+        /* Skeleton Loading */
+        .skeleton {
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 8px;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        /* Microanimaciones */
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-up {
+            animation: slideUp 0.3s ease forwards;
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Badge de notificaciones */
+        .notif-badge {
+            position: absolute;
+            top: -4px;
+            right: -6px;
+            background: #f43f5e;
+            color: white;
+            font-size: 8px;
+            font-weight: 700;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        /* Estado vacío */
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        .empty-state i {
+            font-size: 48px;
+            color: #334155;
+            margin-bottom: 16px;
+        }
+        .empty-state h4 {
+            color: #94a3b8;
+            font-weight: 700;
+            font-size: 14px;
+        }
+        .empty-state p {
+            color: #64748b;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        /* Scroll suave */
+        .smooth-scroll {
+            scroll-behavior: smooth;
+        }
+        /* Nuevos estilos para el centro de aprendizaje */
+        .learning-card {
+            transition: transform 0.2s ease;
+        }
+        .learning-card:hover {
+            transform: translateY(-2px);
+        }
+        /* Estilos para comunidad */
+        .community-post {
+            transition: all 0.2s ease;
+        }
+        .community-post:hover {
+            background: #1e293b;
+        }
+        /* Estilos para academia */
+        .academy-level {
+            transition: all 0.3s ease;
+        }
+        .academy-level:hover {
+            transform: scale(1.01);
+        }
+        /* Estilos para el asistente */
+        .assistant-message {
+            animation: messageIn 0.3s ease forwards;
+        }
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Estilos para notificaciones */
+        .notification-item {
+            transition: all 0.2s ease;
+        }
+        .notification-item:hover {
+            background: #1e293b;
+        }
+        /* Estilos para el negocio */
+        .business-stat {
+            transition: all 0.2s ease;
+        }
+        .business-stat:hover {
+            transform: scale(1.02);
+        }
+        /* Estilos para favoritos */
+        .favorite-list {
+            transition: all 0.2s ease;
+        }
+        .favorite-list:hover {
+            border-color: #f43f5e;
+        }
+        html,
+        body {
+            min-height: 100vh;
+            width: 100%;
+        }
+        #app-frame {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            width: 100%;
+            min-height: 100vh;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #app-frame.app-loaded {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+        #app-viewport {
+            min-height: calc(100vh - 72px);
+            min-width: 0;
+        }
+        .screen {
+            min-height: calc(100vh - 72px);
+        }
+        @media (max-width: 640px) {
+            body {
+                justify-content: flex-start;
+                padding: 0.5rem;
+            }
+            #app-frame {
+                min-height: calc(100vh - 1rem);
+                max-height: calc(100vh - 1rem);
+                border-radius: 0;
+            }
+            #app-viewport,
+            .screen {
+                min-height: calc(100vh - 72px);
+            }
+            .screen > .my-auto,
+            .screen > .space-y-6 {
+                padding-top: 1rem;
+                padding-bottom: 1rem;
+            }
+        }
+        /* Loader inicial */
+        #app-loader {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.95);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            color: #f8fafc;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.35s ease;
+        }
+        #app-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #app-loader .loader-bar {
+            width: 192px;
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+            background: rgba(148, 163, 184, 0.15);
+        }
+        #app-loader .loader-bar::before {
+            content: '';
+            display: block;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, #f43f5e, #fbbf24);
+            animation: loaderProgress 1.6s ease-in-out infinite;
+        }
+        @keyframes loaderProgress {
+            0% { transform: translateX(-100%); }
+            50% { transform: translateX(10%); }
+            100% { transform: translateX(100%); }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 min-h-screen flex items-center justify-center p-0 sm:p-6 transition-colors duration-300">
+<div id="app-loader" class="">
+    <img src="logopricipal.png" alt="CosmoExpress" class="w-28 h-28 object-contain animate-pulse">
+    <div class="space-y-2">
+        <h2 class="text-xl font-black tracking-tight">Cargando CosmoExpress</h2>
+        <div class="loader-bar"></div>
+        <p class="text-[11px] text-slate-300">Un momento, por favor...</p>
+    </div>
+</div>
+
+    <!-- FRAME DEL DISPOSITIVO SMARTPHONE -->
+    <div class="relative w-full max-w-[420px] min-h-screen h-auto bg-slate-50 dark:bg-slate-950 rounded-none sm:rounded-[48px] shadow-[0_0_60px_rgba(244,63,94,0.15)] overflow-hidden border-0 sm:border-[10px] border-slate-900 flex flex-col transition-colors duration-300" id="app-frame">
+        
+        <!-- Notch de Smartphone Realista -->
+        <div class="hidden sm:block notch"></div>
+
+        <!-- BARRA DE ESTADO -->
+        <div class="w-full bg-slate-50 dark:bg-slate-950 px-6 pt-3 pb-2 flex justify-between items-center text-xs font-bold z-50 shrink-0 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+            <span id="live-time-ticker">08:46</span>
+            <div class="flex items-center gap-1.5">
+                <i class="fa-solid fa-signal text-[10px]"></i>
+                <span class="text-[9px]">5G</span>
+                <i class="fa-solid fa-battery-three-quarters text-sm"></i>
+            </div>
+        </div>
+
+        <!-- PORTAL PRINCIPAL (Navegación / SPA) -->
+        <div class="flex-1 overflow-y-auto relative bg-slate-50 dark:bg-slate-950" id="app-viewport">
+
+            <!-- ======================== PANTALLAS EXISTENTES (NO MODIFICADAS) ======================== -->
+            
+            <!-- SCREEN 1: SPLASH -->
+            <div id="screen-splash" class="screen h-full flex flex-col justify-between items-center p-8 bg-gradient-to-br from-brand-900 via-brand-700 to-slate-950 text-white">
+                <div class="my-auto text-center space-y-4">
+                    <div class="w-24 h-24 bg-white/10 backdrop-blur-md rounded-3xl mx-auto flex items-center justify-center border border-white/20 shadow-2xl animate-pulse overflow-hidden">
+                        <img src="logo.png" alt="Logo CosmoExpress" class="w-20 h-20 object-contain">
+                    </div>
+                    <h1 class="text-3xl font-extrabold tracking-tight">Cosmo<span class="text-gold-400">Express</span></h1>
+                    <span class="text-[9px] bg-gold-500/20 text-gold-400 px-3 py-1 rounded-full font-bold uppercase tracking-widest border border-gold-500/30">Portal de Importación B2B</span>
+                </div>
+                <button onclick="navigate('screen-welcome')" class="w-full py-4 bg-white text-brand-700 rounded-2xl font-extrabold text-sm shadow-xl active:scale-95 transition-transform">
+                    Acceder al Canal Mayorista <i class="fa-solid fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+
+            <!-- SCREEN 2: BIENVENIDA -->
+            <div id="screen-welcome" class="screen hidden h-full p-6 bg-white dark:bg-slate-950 flex flex-col justify-between">
+                <div class="my-auto space-y-6 text-center">
+                    <div class="w-40 h-40 rounded-full mx-auto border-4 border-brand-500 shadow-2xl overflow-hidden bg-white/5 flex items-center justify-center">
+                        <img src="logopricipal.png" alt="Beauty Warehouse" class="w-28 h-28 object-contain">
+                    </div>
+                    <div class="space-y-2">
+                        <h2 class="text-2xl font-black text-slate-950 dark:text-white">Importaciones a precio de fábrica</h2>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 px-4 leading-relaxed">Canal de abastecimiento exclusivo para Distribuidores, Tiendas, Salones y Emprendedores de Belleza.</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <button onclick="navigate('screen-login')" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg">
+                        Iniciar Sesión Socio
+                    </button>
+                    <button onclick="navigate('screen-admin-login')" class="w-full py-4 bg-slate-900 hover:bg-slate-900 border border-slate-800 text-gold-400 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-user-shield text-xs"></i> Consola Administrativa
+                    </button>
+                    <button onclick="navigate('screen-register')" class="w-full py-3 text-slate-500 dark:text-slate-400 text-xs font-bold hover:underline">
+                        ¿No tienes una cuenta? Regístrate aquí
+                    </button>
+                </div>
+            </div>
+
+            <!-- SCREEN 3: LOGIN CLIENTE -->
+            <div id="screen-login" class="screen hidden p-6 bg-white dark:bg-slate-950 h-full flex flex-col justify-between">
+                <div>
+                    <button onclick="navigate('screen-welcome')" class="text-slate-400 hover:text-slate-600 text-xs font-bold mb-6"><i class="fa-solid fa-chevron-left mr-1"></i> Atrás</button>
+                    <h2 class="text-2xl font-black text-slate-950 dark:text-white">Ingreso Mayorista</h2>
+                    <p class="text-xs text-slate-400 mt-1 mb-6">Inicia sesión con tus credenciales corporativas verificadas.</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">CORREO CORPORATIVO / RUC</label>
+                            <input type="email" id="login-email" value="contacto@bellasac.pe" class="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-950 dark:text-white focus:ring-1 focus:ring-brand-500">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 dark:text-slate-400 block mb-1">CONTRASEÑA</label>
+                            <input type="password" id="login-pass" value="••••••••" class="w-full p-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-950 dark:text-white focus:ring-1 focus:ring-brand-500">
+                        </div>
+                    </div>
+                </div>
+                <button onclick="navigate('screen-verify')" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider">
+                    Validar Acceso
+                </button>
+            </div>
+
+            <!-- SCREEN 4: REGISTRO -->
+            <div id="screen-register" class="screen hidden p-6 bg-white dark:bg-slate-950 h-full flex flex-col justify-between">
+                <div>
+                    <button onclick="navigate('screen-welcome')" class="text-slate-400 hover:text-slate-600 text-xs font-bold mb-4"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                    <h2 class="text-xl font-black text-slate-950 dark:text-white">Registro Comercial</h2>
+                    <p class="text-xs text-slate-400 mb-4">Solo para negocios registrados en el sector belleza.</p>
+                    <div class="space-y-3">
+                        <input type="text" placeholder="Razón Social / RUC" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-950 dark:text-white">
+                        <input type="text" placeholder="Representante Legal" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-950 dark:text-white">
+                        <input type="tel" placeholder="Teléfono de Contacto" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-950 dark:text-white">
+                        <input type="email" placeholder="Correo de Negocio" class="w-full p-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs text-slate-950 dark:text-white">
+                    </div>
+                </div>
+                <button onclick="navigate('screen-verify')" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase">Crear Solicitud de Cuenta</button>
+            </div>
+
+            <!-- SCREEN 5: VERIFICACIÓN COMERCIAL -->
+            <div id="screen-verify" class="screen hidden p-6 bg-white dark:bg-slate-950 h-full flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-black text-slate-950 dark:text-white">Verificación de Negocio</h2>
+                    <p class="text-xs text-slate-400 mt-1 mb-6">Por seguridad fiscal, adjunta tu Ficha RUC (Sunat) para desbloquear precios FOB.</p>
+                    <div class="border-2 border-dashed border-slate-200 dark:border-slate-800 p-6 rounded-2xl text-center bg-slate-50 dark:bg-slate-900 cursor-pointer">
+                        <i class="fa-solid fa-file-invoice text-brand-500 text-3xl mb-2"></i>
+                        <h4 class="text-xs font-bold text-slate-800 dark:text-white">Subir Ficha RUC (PDF/JPG)</h4>
+                        <span class="text-[9px] text-slate-400">Verificación automática Sunat en 5 segundos</span>
+                    </div>
+                </div>
+                <button onclick="runVerificationProcess()" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider">
+                    Verificar Empresa
+                </button>
+            </div>
+
+            <!-- SCREEN 6: ESPERA DE VALIDACIÓN -->
+            <div id="screen-verify-loading" class="screen hidden h-full flex flex-col justify-center items-center p-6 text-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-brand-500 border-t-transparent mb-4"></div>
+                <h3 class="text-sm font-black text-slate-800 dark:text-white">Consultando Padrón Sunat...</h3>
+                <p class="text-xs text-slate-400 mt-1">Validando vigencia de actividades y habidos comerciales</p>
+            </div>
+
+            <!-- SCREEN 7: ÉXITO -->
+            <div id="screen-verify-success" class="screen hidden h-full flex flex-col justify-between items-center p-6 text-center">
+                <div class="my-auto space-y-3">
+                    <i class="fa-solid fa-circle-check text-emerald-500 text-6xl"></i>
+                    <h3 class="text-lg font-black text-slate-800 dark:text-white">¡Socio Mayorista Aprobado!</h3>
+                    <p class="text-xs text-slate-400 px-4">Bienvenido a CosmoExpress. Se han desbloqueado las tarifas de contenedor.</p>
+                </div>
+                <button onclick="navigate('screen-dashboard')" class="w-full py-4 bg-slate-950 text-white dark:bg-white dark:text-slate-950 rounded-2xl font-bold text-xs uppercase tracking-widest">
+                    Entrar al Dashboard B2B
+                </button>
+            </div>
+
+            <!-- SCREEN 8: DASHBOARD B2B (CLIENTE) - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-dashboard" class="screen hidden p-4 space-y-4">
+                <!-- Header de Fidelización -->
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-10 h-10 object-cover rounded-full border-2 border-brand-500" alt="Avatar">
+                            <span class="absolute -bottom-1 -right-1 bg-brand-500 text-white text-[8px] font-black px-1.5 py-0.5 rounded-full">ORO</span>
+                        </div>
+                        <div>
+                            <h3 class="text-xs font-black text-slate-800 dark:text-white">Bella Distribuciones S.A.C.</h3>
+                            <span class="text-[9px] text-brand-500 font-bold"><i class="fa-solid fa-crown mr-0.5"></i> Socio Nivel Oro (4,250 Pts)</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <!-- Botón para abrir el Drawer (NUEVO) -->
+                        <button onclick="toggleDrawer()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center text-xs relative">
+                            <i class="fa-solid fa-bars"></i>
+                            <span class="notif-badge" style="top:-2px; right:-2px; width:14px; height:14px; font-size:7px;">3</span>
+                        </button>
+                        <button onclick="toggleDarkMode()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-yellow-400 flex items-center justify-center text-xs">
+                            <i class="fa-solid fa-circle-half-stroke"></i>
+                        </button>
+                        <button onclick="navigate('screen-notifications')" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 flex items-center justify-center relative text-xs">
+                            <span class="absolute top-1 right-1 w-2 h-2 bg-brand-500 rounded-full"></span>
+                            <i class="fa-solid fa-bell"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BANNER DE PREVENTAS Y RESERVA -->
+                <div class="bg-gradient-to-r from-purple-900 to-brand-900 text-white rounded-3xl p-5 relative overflow-hidden shadow-lg border border-brand-500/20">
+                    <span class="text-[8px] bg-brand-500 text-white font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">PREVENTA MARÍTIMA</span>
+                    <h3 class="text-sm font-black mt-1">Buque K-Beauty Express</h3>
+                    <p class="text-[10px] text-slate-300 mt-1">Arribo estimado en Callao: 25 de Agosto. Asegura stock con el 30% del valor FOB.</p>
+                    <button onclick="navigate('screen-presale')" class="mt-3 px-3 py-1.5 bg-white text-brand-900 text-[9px] font-extrabold rounded-lg uppercase tracking-wider">Ver Lotes en Tránsito</button>
+                </div>
+
+                <!-- MENU REJILLA PRINCIPAL INTERCONECTADO -->
+                <div class="grid grid-cols-4 gap-2">
+                    <button onclick="navigate('screen-catalogo')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-cubes text-brand-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Catálogo</span>
+                    </button>
+                    <button onclick="navigate('screen-calculator-suite')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-calculator text-amber-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Calculadoras</span>
+                    </button>
+                    <button onclick="navigate('screen-academy')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-graduation-cap text-indigo-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Academia</span>
+                    </button>
+                    <button onclick="navigate('screen-loyalty')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-trophy text-yellow-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Premios</span>
+                    </button>
+                </div>
+
+                <!-- SEGUNDA LÍNEA DE SERVICIOS ADICIONALES -->
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="navigate('screen-promos')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-bolt text-red-500 text-xs"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Flash & Combos</span>
+                    </button>
+                    <button onclick="navigate('screen-favorites')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-heart text-pink-500 text-xs"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Mis Listas</span>
+                    </button>
+                    <button onclick="navigate('screen-help-center')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
+                        <i class="fa-solid fa-circle-question text-teal-500 text-xs"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Ayuda & FAQ</span>
+                    </button>
+                </div>
+
+                <!-- COMPARADOR DIRECTO -->
+                <div class="bg-slate-900 text-white rounded-2xl p-3 flex justify-between items-center border border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-code-compare text-yellow-500 text-xs"></i>
+                        <span class="text-[9px] font-bold text-slate-300">¿No sabes qué lote comprar? Usa el comparador</span>
+                    </div>
+                    <button onclick="navigate('screen-compare')" class="px-3 py-1 bg-yellow-500 text-slate-950 font-black rounded-lg text-[8px] uppercase">Comparar</button>
+                </div>
+
+                <!-- RECOMENDACIONES IA SEGÚN HISTORIAL -->
+                <div>
+                    <h4 class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1">
+                        <i class="fa-solid fa-wand-magic-sparkles text-brand-500"></i> Novedades Sugeridas por IA
+                    </h4>
+                    <div class="grid grid-cols-2 gap-3" id="dashboard-recent-grid"></div>
+                </div>
+            </div>
+
+            <!-- SCREEN 9: CATÁLOGO B2B - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-catalogo" class="screen hidden p-4 space-y-4">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" onkeyup="searchCatalog(this.value)" placeholder="Buscar por marca, ingrediente, registro..." class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl text-xs font-semibold text-slate-800 dark:text-white">
+                </div>
+
+                <!-- Categorías Rápidas -->
+                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <span class="px-3.5 py-1.5 bg-brand-500 text-white rounded-full text-[10px] font-bold shrink-0 cursor-pointer">Todos</span>
+                    <span class="px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] border dark:border-slate-800 shrink-0 cursor-pointer">Skincare</span>
+                    <span class="px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] border dark:border-slate-800 shrink-0 cursor-pointer">Maquillaje</span>
+                    <span class="px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] border dark:border-slate-800 shrink-0 cursor-pointer">Novedades</span>
+                </div>
+
+                <!-- Contenedor del listado de lotes -->
+                <div class="grid grid-cols-2 gap-3" id="catalogo-products-grid"></div>
+            </div>
+
+            <!-- SCREEN 10: COMPARADOR DETALLADO - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-compare" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Comparador de Lotes</h2>
+                
+                <div class="grid grid-cols-2 gap-3 bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800">
+                    <div>
+                        <span class="text-[8px] text-brand-500 block font-bold uppercase">Lote A</span>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white mt-0.5">Serum Hyaluronic</h4>
+                        <ul class="text-[9px] space-y-1.5 mt-3 text-slate-500">
+                            <li><strong>Origen:</strong> Corea</li>
+                            <li><strong>Precio Caja (12u):</strong> S/ 96.00</li>
+                            <li><strong>Digemid:</strong> NSOC Certificado</li>
+                            <li><strong>Retorno Est.:</strong> 191%</li>
+                        </ul>
+                    </div>
+                    <div class="border-l pl-3 dark:border-slate-850">
+                        <span class="text-[8px] text-brand-500 block font-bold uppercase">Lote B</span>
+                        <h4 class="text-xs font-black text-slate-800 dark:text-white mt-0.5">Paleta UltraGlow</h4>
+                        <ul class="text-[9px] space-y-1.5 mt-3 text-slate-500">
+                            <li><strong>Origen:</strong> EE.UU.</li>
+                            <li><strong>Precio Caja (12u):</strong> S/ 264.00</li>
+                            <li><strong>Digemid:</strong> NSOC Certificado</li>
+                            <li><strong>Retorno Est.:</strong> 94.4%</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="bg-brand-500/10 p-3 rounded-2xl border border-brand-500/20">
+                    <p class="text-[10px] text-brand-500 font-bold leading-relaxed">💡 <strong>Recomendación CosmoIA:</strong> El Serum Hyaluronic presenta una tasa de rotación de inventario 2.8 veces mayor en el canal minorista.</p>
+                </div>
+            </div>
+
+            <!-- SCREEN 11: PREVENTA Y PRÓXIMAS IMPORTACIONES - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-presale" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Lotes de Importación Próxima</h2>
+                <p class="text-xs text-slate-400 leading-relaxed">Reserva la mercadería a precio preferencial antes de su llegada a puerto peruano.</p>
+
+                <div class="space-y-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-4 rounded-3xl space-y-3">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="bg-brand-100 dark:bg-brand-900/50 text-brand-500 text-[8px] font-bold px-2 py-0.5 rounded-full uppercase">K-Beauty Drops</span>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white mt-1">Crema Rejuvenecedora Caracol (Caja 12u)</h4>
+                            </div>
+                            <span class="text-[9px] text-yellow-500 font-bold shrink-0">Arribo: 18/08</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t dark:border-slate-850">
+                            <span class="text-[10px] text-slate-400">Reserva con el 30%: <strong>S/ 120.00</strong></span>
+                            <button onclick="alert('Lote reservado de forma correcta en pre-embarque.')" class="bg-brand-600 hover:bg-brand-700 text-white text-[9px] font-bold px-3 py-1.5 rounded-lg uppercase">Reservar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 12: CALCULADORAS AVANZADAS - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-calculator-suite" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Herramientas Financieras B2B</h2>
+
+                <!-- Selector de Calculadora -->
+                <div class="grid grid-cols-2 gap-2 bg-slate-100 dark:bg-slate-900 p-1.5 rounded-2xl">
+                    <button id="btn-calc-util" onclick="toggleSuiteCalc('util')" class="w-full text-[10px] font-black py-2 rounded-xl transition-all bg-brand-600 text-white">Utilidad & ROI</button>
+                    <button id="btn-calc-inv" onclick="toggleSuiteCalc('inv')" class="w-full text-[10px] font-black py-2 rounded-xl transition-all text-slate-500">Asistente de Inversión</button>
+                </div>
+
+                <!-- CALCULADORA 1: UTILIDAD Y ROI -->
+                <div id="calc-util-view" class="bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Costo Unitario Lote (S/)</label>
+                        <input type="number" id="calc-unit-cost" value="10" oninput="runMathUtil()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs text-slate-950 dark:text-white mt-1 border dark:border-slate-800">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Precio Minorista de Venta (S/)</label>
+                        <input type="number" id="calc-unit-sale" value="30" oninput="runMathUtil()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs text-slate-950 dark:text-white mt-1 border dark:border-slate-800">
+                    </div>
+                    
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 p-3.5 rounded-2xl space-y-1 text-center">
+                        <span class="text-[9px] text-emerald-500 font-bold block uppercase">Retorno Estimado de Inversión</span>
+                        <h4 class="text-lg font-black text-emerald-500" id="calc-roi-res">S/ 20.00 de Utilidad (200.00% ROI)</h4>
+                    </div>
+                </div>
+
+                <!-- CALCULADORA 2: ASISTENTE DE INVERSIÓN SUGERIDO -->
+                <div id="calc-inv-view" class="hidden bg-white dark:bg-slate-900 p-4 rounded-3xl border dark:border-slate-800 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400 uppercase">Capital a Invertir (S/)</label>
+                        <input type="number" id="calc-capital" value="500" oninput="runMathInvestment()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs text-slate-950 dark:text-white mt-1 border dark:border-slate-800">
+                    </div>
+
+                    <div class="bg-brand-500/10 border border-brand-500/20 p-3.5 rounded-2xl space-y-2">
+                        <span class="text-[9px] text-brand-500 font-bold block uppercase">Paquete Sugerido para Maximizar Ganancia:</span>
+                        <div id="calc-inv-results" class="text-xs text-slate-600 dark:text-slate-300 space-y-1"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 13: DETALLE DE PRODUCTO B2B - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-detalle" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-catalogo')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver al Catálogo</button>
+                
+                <div class="relative h-48 w-full bg-slate-100 dark:bg-slate-900 rounded-3xl overflow-hidden">
+                    <img id="detail-p-image" src="" class="w-full h-full object-cover" alt="Lote">
+                    <span class="absolute top-3 left-3 bg-emerald-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase">DIGEMID VIGENTE</span>
+                </div>
+
+                <div>
+                    <h2 id="detail-p-name" class="text-base font-black text-slate-950 dark:text-white">Nombre de Lote</h2>
+                    <p class="text-[10px] text-slate-400 mt-1">Origen: <span id="detail-p-country" class="font-bold">Corea</span> | Certificación: <span class="font-bold">NSOC (Digemid)</span></p>
+                </div>
+
+                <!-- Historial de Precios & Rating -->
+                <div class="bg-slate-100 dark:bg-slate-900 p-3 rounded-2xl flex justify-between items-center text-[9px] text-slate-500 dark:text-slate-400">
+                    <span><i class="fa-solid fa-arrow-trend-down text-emerald-500 mr-1"></i> Historial: Precio Estable</span>
+                    <span class="text-yellow-500"><i class="fa-solid fa-star mr-0.5"></i> 4.9 (50 Reseñas Verificadas)</span>
+                </div>
+
+                <!-- Tarifas por Volumen (Wholesale Only) -->
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 space-y-3">
+                    <h4 class="text-xs font-black text-slate-800 dark:text-white">Precios Mayoristas</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="selectWholesaleTier('caja')" id="tier-caja-btn" class="p-2 border rounded-xl text-center bg-brand-500/10 border-brand-500">
+                            <span class="block text-[8px] text-slate-400 font-bold uppercase">Caja</span>
+                            <span id="tier-caja-qty" class="text-[9px] font-black block text-slate-400">12 unidades</span>
+                            <strong id="tier-caja-price" class="text-xs font-black text-slate-950 dark:text-white">S/ 0.00</strong>
+                        </button>
+                        <button onclick="selectWholesaleTier('gruesa')" id="tier-gruesa-btn" class="p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800">
+                            <span class="block text-[8px] text-slate-400 font-bold uppercase">Gruesa</span>
+                            <span id="tier-gruesa-qty" class="text-[9px] font-black block text-slate-400">144 unidades</span>
+                            <strong id="tier-gruesa-price" class="text-xs font-black text-slate-950 dark:text-white">S/ 0.00</strong>
+                        </button>
+                        <button onclick="selectWholesaleTier('cajon')" id="tier-cajon-btn" class="p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800">
+                            <span class="block text-[8px] text-slate-400 font-bold uppercase">Cajón</span>
+                            <span id="tier-cajon-qty" class="text-[9px] font-black block text-slate-400">240 unidades</span>
+                            <strong id="tier-cajon-price" class="text-xs font-black text-slate-950 dark:text-white">S/ 0.00</strong>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="addToCartCurrent()" class="flex-1 py-3.5 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider">Inyectar a la Orden</button>
+                    <button onclick="shareProduct()" class="px-4 bg-slate-100 dark:bg-slate-900 border dark:border-slate-800 text-slate-700 dark:text-white rounded-2xl"><i class="fa-solid fa-share-nodes"></i></button>
+                </div>
+            </div>
+
+            <!-- SCREEN 14: PEDIDO / CARRITO B2B - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-cart" class="screen hidden p-4 space-y-4">
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Orden de Compra</h2>
+                <div class="space-y-3" id="cart-list-container"></div>
+
+                <!-- ALERTA DE COMPRA MÍNIMA EXIGIDA -->
+                <div id="cart-min-warning" class="bg-rose-500/10 border border-rose-500/20 p-3.5 rounded-2xl text-center">
+                    <span class="text-[9px] text-rose-500 font-black block uppercase tracking-wider"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Orden Mínima no alcanzada</span>
+                    <p id="cart-min-warning-txt" class="text-[10px] text-rose-400 mt-0.5">Te faltan S/ 150.00 para poder procesar la mercadería.</p>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 space-y-2 text-xs">
+                    <div class="flex justify-between text-slate-500">
+                        <span>Valor FOB Neto</span>
+                        <strong class="text-slate-950 dark:text-white" id="cart-fob-val">S/ 0.00</strong>
+                    </div>
+                    <div class="flex justify-between text-slate-500">
+                        <span>Despacho de Aduana & IGV (18%)</span>
+                        <strong class="text-slate-950 dark:text-white" id="cart-tax-val">S/ 0.00</strong>
+                    </div>
+                    <div class="flex justify-between text-sm font-black border-t dark:border-slate-800 pt-2 text-slate-950 dark:text-white">
+                        <span>Total de Importación</span>
+                        <span class="text-brand-500 animate-pulse" id="cart-total-val">S/ 0.00</span>
+                    </div>
+                </div>
+
+                <button id="btn-checkout-trigger" onclick="navigate('screen-pago')" disabled class="w-full py-4 bg-slate-300 dark:bg-slate-800 text-slate-400 rounded-2xl font-bold text-xs uppercase tracking-wider cursor-not-allowed">
+                    Proceder al Pago
+                </button>
+            </div>
+
+            <!-- SCREEN 15: PORTAL DE PAGO - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-pago" class="screen hidden p-4 space-y-4">
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Método de Liquidación</h2>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-4 rounded-3xl flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-building-columns text-brand-500 text-lg"></i>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Transferencia Directa (BCP / Interbank)</h4>
+                            <span class="text-[9px] text-slate-400">Cero comisiones interbancarias</span>
+                        </div>
+                    </div>
+                    <input type="radio" checked class="accent-brand-500">
+                </div>
+                <button onclick="confirmOrder()" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg">
+                    Confirmar Pedido de Carga
+                </button>
+            </div>
+
+            <!-- SCREEN 16: RASTREO Y TRÁNSITO MARÍTIMO - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-tracking" class="screen hidden p-4 space-y-4">
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Tránsito Marítimo</h2>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-5 rounded-3xl space-y-4 relative">
+                    <div class="absolute left-7 top-6 bottom-6 w-0.5 bg-slate-100 dark:bg-slate-800"></div>
+                    <div class="flex gap-4 items-start relative">
+                        <div class="w-5 h-5 rounded-full bg-brand-500 text-white flex items-center justify-center text-[8px] z-10"><i class="fa-solid fa-check"></i></div>
+                        <div>
+                            <h4 class="text-xs font-black text-slate-800 dark:text-white">Consolidación en Origen</h4>
+                            <span class="text-[9px] text-slate-400">Puerto de Shanghái - Completado</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start relative animate-pulse">
+                        <div class="w-5 h-5 rounded-full bg-brand-500 text-white flex items-center justify-center text-[8px] z-10"><i class="fa-solid fa-ship"></i></div>
+                        <div>
+                            <h4 class="text-xs font-black text-slate-850 dark:text-white">En Tránsito Marítimo</h4>
+                            <span class="text-[9px] text-slate-400">Buque Logístico Cosco-X</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 17: ACADEMIA DE EMPRENDEDORES - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-academy" class="screen hidden p-4 space-y-4">
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Centro de Aprendizaje B2B</h2>
+                <p class="text-xs text-slate-400">Cursos prácticos de reventa y estrategias de marketing de cosméticos.</p>
+                
+                <div class="grid grid-cols-1 gap-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-4 rounded-3xl space-y-2">
+                        <span class="bg-brand-500/10 text-brand-500 text-[8px] font-bold px-2 py-0.5 rounded-full">CLASE PRÁCTICA</span>
+                        <h4 class="text-xs font-black text-slate-850 dark:text-white">Cómo triplicar tus ventas con TikTok Organic</h4>
+                        <p class="text-[9px] text-slate-400 leading-relaxed">Aprende a posicionar productos de cuidado facial sin pagar publicidad.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 18: PROGRAMA DE FIDELIZACIÓN (LOYALTY) - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-loyalty" class="screen hidden p-4 space-y-4">
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Programa CosmoVIP</h2>
+                <div class="bg-gradient-to-r from-yellow-500 to-amber-600 text-slate-950 p-5 rounded-3xl space-y-2">
+                    <span class="text-[9px] font-black bg-white/20 px-2 py-0.5 rounded-full uppercase">Socio Preferente</span>
+                    <h3 class="text-base font-black">Nivel: Oro</h3>
+                    <p class="text-[10px]">Beneficio activo: 5% de descuento directo en todas tus órdenes marítimas este mes.</p>
+                </div>
+            </div>
+
+            <!-- SCREEN 19: PERFIL DE USUARIO CLIENTE - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-profile" class="screen hidden p-4 space-y-4">
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 text-center space-y-2">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-16 h-16 object-cover rounded-full mx-auto border-2 border-brand-500">
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white">Bella Distribuciones S.A.C.</h3>
+                    <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full font-bold">RUC: 20123456789</span>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl overflow-hidden">
+                    <button onclick="navigate('screen-welcome')" class="w-full p-4 text-left text-xs font-bold text-rose-500 border-t dark:border-slate-800 hover:bg-rose-500/10">Cerrar Sesión B2B</button>
+                </div>
+            </div>
+
+            <!-- SCREEN 20: PROMO FLASH & COMBOS - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-promos" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Ofertas Relámpago</h2>
+                <div class="bg-rose-600 text-white p-4 rounded-3xl relative overflow-hidden">
+                    <span class="text-[8px] bg-white/20 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-widest">FLASH DE LA SEMANA</span>
+                    <h3 class="text-sm font-black mt-2">Cajón de Labiales Glossy con 25% de Descuento</h3>
+                </div>
+            </div>
+
+            <!-- SCREEN 21: FAVORITOS Y LISTAS - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-favorites" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Mis Listas de Compra</h2>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3.5 rounded-2xl flex justify-between items-center cursor-pointer">
+                    <span class="text-xs font-bold text-slate-800 dark:text-white">Reposición de Stock de Skincare</span>
+                    <span class="text-[9px] text-slate-400 font-bold">3 Lotes</span>
+                </div>
+            </div>
+
+            <!-- SCREEN 22: AYUDA Y FAQ - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-help-center" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Ayuda y Preguntas Frecuentes</h2>
+                <details class="bg-white dark:bg-slate-900 p-4 rounded-2xl border dark:border-slate-800 cursor-pointer">
+                    <summary class="text-xs font-bold text-slate-800 dark:text-white">¿Cuál es el valor mínimo de orden?</summary>
+                    <p class="text-[10px] text-slate-400 mt-2">El mínimo exigido es de S/ 150.00 en valor FOB neto para sostener los costos aduaneros y logísticos.</p>
+                </details>
+            </div>
+
+            <!-- SCREEN 23: NOTIFICACIONES - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-notifications" class="screen hidden p-4 space-y-4">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">Notificaciones de Carga</h2>
+                <div class="p-3 bg-brand-500/10 border border-brand-500/20 rounded-2xl text-xs text-slate-800 dark:text-white">
+                    🚢 Su contenedor ha ingresado al canal de aduanas marítimas en el Puerto del Callao.
+                </div>
+            </div>
+
+            <!-- ======================== PANTALLAS ADMINISTRATIVAS EXISTENTES (NO MODIFICADAS) ======================== -->
+
+            <!-- SCREEN 24: LOGIN BACK OFFICE - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-admin-login" class="screen hidden p-6 bg-slate-950 text-white h-full flex flex-col justify-between">
+                <div>
+                    <h2 class="text-2xl font-black text-gold-500 mb-1">CosmoExpress Core</h2>
+                    <p class="text-xs text-slate-400 mb-6">Módulo Operativo de Control Logístico y Comercial</p>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-1">Perfil Operativo</label>
+                            <select id="admin-role-select" class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200">
+                                <option value="Superadministrador">Superadministrador</option>
+                                <option value="Administrador">Administrador</option>
+                                <option value="Gestor de Productos">Gestor de Productos</option>
+                                <option value="Gestor de Inventario">Gestor de Inventario</option>
+                                <option value="Gestor de Pedidos">Gestor de Pedidos</option>
+                                <option value="Gestor de Clientes">Gestor de Clientes</option>
+                                <option value="Gestor de Importaciones">Gestor de Importaciones</option>
+                                <option value="Gestor de Marketing">Gestor de Marketing</option>
+                                <option value="Gestor de Atención al Cliente">Gestor de Atención al Cliente</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-400 block mb-1">Token de Seguridad (2FA)</label>
+                            <input type="password" value="••••••••" class="w-full p-3.5 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-200">
+                        </div>
+                    </div>
+                </div>
+
+                <button onclick="loginAdminPortal()" class="w-full py-4 bg-gold-500 text-slate-950 font-black rounded-2xl text-xs uppercase tracking-widest shadow-lg shadow-gold-500/20">
+                    Iniciar Sesión de Control
+                </button>
+            </div>
+
+            <!-- SCREEN 25: PANEL OPERATIVO INDEPENDIENTE - EXISTENTE (NO MODIFICADO) -->
+            <div id="screen-admin-dashboard" class="screen hidden p-4 bg-slate-950 text-slate-100 min-h-full space-y-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <span class="text-[8px] text-gold-500 font-bold uppercase" id="admin-active-role">Rol: Superadmin</span>
+                        <h2 class="text-sm font-black text-white">Consola CosmoExpress</h2>
+                    </div>
+                    <button onclick="navigate('screen-welcome')" class="text-xs text-rose-500 font-bold"><i class="fa-solid fa-power-off"></i> Salir</button>
+                </div>
+
+                <!-- KPI de Control -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                        <span class="text-[8px] text-slate-400 block uppercase font-bold">FOB Total Mes</span>
+                        <h3 class="text-xs font-black text-gold-500">S/ 485,600.00</h3>
+                    </div>
+                    <div class="bg-slate-900 p-3 rounded-2xl border border-slate-800">
+                        <span class="text-[8px] text-slate-400 block uppercase font-bold">Lotes en Puerto</span>
+                        <h3 class="text-xs font-black text-white">18 Buques</h3>
+                    </div>
+                </div>
+
+                <!-- Lista de Pantallas de Control del Core -->
+                <div class="space-y-2">
+                    <h4 class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Módulos Administrativos</h4>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="navigate('screen-admin-products')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-boxes-packing text-brand-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Lotes</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-categories')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-list text-pink-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Categorías</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-brands')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-copyright text-blue-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Marcas</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-customers')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-users text-purple-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Clientes</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-orders')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-receipt text-yellow-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Pedidos</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-imports')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-ship text-indigo-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Importaciones</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-inventory')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-warehouse text-emerald-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Inventario</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-promotions')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-tags text-orange-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Promos</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-carriers')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-truck text-cyan-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Transporte</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-users')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-user-gear text-red-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Usuarios</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-roles')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-user-shield text-emerald-400 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Roles</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-reports')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-chart-bar text-amber-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Reportes</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-billing')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-file-invoice-dollar text-green-500 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Facturación</span>
+                        </button>
+                        <button onclick="navigate('screen-admin-config')" class="bg-slate-900 p-2.5 text-center flex flex-col items-center gap-1 border border-slate-800 rounded-xl">
+                            <i class="fa-solid fa-gears text-slate-400 text-xs"></i>
+                            <span class="text-[8px] font-bold text-slate-300">Ajustes</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBPANTALLAS ADMINISTRATIVAS EXISTENTES (NO MODIFICADAS) -->
+            <div id="screen-admin-products" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-xs font-black">Control de Lotes</h2>
+                    <button onclick="addNewAdminProduct()" class="bg-gold-500 text-slate-950 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase">+ Crear</button>
+                </div>
+                <div class="space-y-3" id="admin-product-list"></div>
+            </div>
+
+            <div id="screen-admin-categories" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Categorías</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Maquillaje Coreano - Activo</div>
+            </div>
+
+            <div id="screen-admin-brands" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Marcas</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">K-Beauty Drops S.A.C.</div>
+            </div>
+
+            <div id="screen-admin-customers" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Clientes</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Bella Distribuciones S.A.C. (Oro)</div>
+            </div>
+
+            <div id="screen-admin-orders" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Pedidos</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs flex justify-between">
+                    <span>Pedido #10245</span>
+                    <span class="text-cyan-400 font-bold">Por Despachar</span>
+                </div>
+            </div>
+
+            <div id="screen-admin-inventory" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Inventario</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Serum Hyaluronic - 1,200 Unidades</div>
+            </div>
+
+            <div id="screen-admin-imports" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Importaciones</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Contenedor COSU-2018 - En Puerto Callao</div>
+            </div>
+
+            <div id="screen-admin-promotions" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Promociones</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Descuento 5% por primer pedido FOB</div>
+            </div>
+
+            <div id="screen-admin-carriers" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Transportistas</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Operador Logístico S.A.C.</div>
+            </div>
+
+            <div id="screen-admin-users" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Usuarios</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">admin@cosmoexpress.pe</div>
+            </div>
+
+            <div id="screen-admin-roles" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Gestión de Roles</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Superadministrador - Acceso Completo</div>
+            </div>
+
+            <div id="screen-admin-reports" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Reportes Estadísticos</h2>
+                <button onclick="alert('Exportado a PDF')" class="w-full py-2 bg-gold-500 text-slate-950 text-xs font-bold rounded">Exportar Auditoría B2B (PDF)</button>
+            </div>
+
+            <div id="screen-admin-billing" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Facturación & Aduanas</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Liquidación DUA-102456</div>
+            </div>
+
+            <div id="screen-admin-config" class="screen hidden p-4 bg-slate-950 text-white min-h-full space-y-4">
+                <button onclick="navigate('screen-admin-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Dashboard</button>
+                <h2 class="text-xs font-black">Configuración de Sistema</h2>
+                <div class="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs">Monto Mínimo: S/ 150.00</div>
+            </div>
+
+            <!-- ================================================================ -->
+            <!-- ================ NUEVAS PANTALLAS DEL DRAWER ==================== -->
+            <!-- ================================================================ -->
+
+            <!-- NUEVA SCREEN: DASHBOARD PERSONALIZADO -->
+            <div id="screen-user-dashboard" class="screen hidden p-4 space-y-4 fade-in">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-lg font-black text-slate-950 dark:text-white">👋 ¡Hola, Bella!</h2>
+                        <p class="text-[9px] text-slate-400">Bienvenido a tu panel personal</p>
+                    </div>
+                    <span class="text-[10px] bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full font-bold">Oro</span>
+                </div>
+                
+                <!-- Resumen de pedidos -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[9px] text-slate-400">Pedidos</span>
+                        <h3 class="text-sm font-black text-slate-800 dark:text-white">12</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[9px] text-slate-400">En tránsito</span>
+                        <h3 class="text-sm font-black text-yellow-500">3</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[9px] text-slate-400">Entregados</span>
+                        <h3 class="text-sm font-black text-emerald-500">9</h3>
+                    </div>
+                </div>
+
+                <!-- Novedades y Promociones -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🔥 Novedades</h4>
+                    <div class="bg-gradient-to-r from-brand-500/10 to-purple-500/10 border border-brand-500/20 rounded-2xl p-3">
+                        <span class="text-[8px] bg-brand-500 text-white px-2 py-0.5 rounded-full">NUEVO</span>
+                        <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-1">Serum de Niacinamida - ¡Recién llegado!</p>
+                    </div>
+                </div>
+
+                <!-- Accesos rápidos -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">⚡ Accesos Rápidos</h4>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button onclick="navigate('screen-catalogo')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-brand-500 transition-all">
+                            <i class="fa-solid fa-cubes text-brand-500 text-sm"></i>
+                            <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Catálogo</span>
+                        </button>
+                        <button onclick="navigate('screen-cart')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-brand-500 transition-all">
+                            <i class="fa-solid fa-cart-shopping text-emerald-500 text-sm"></i>
+                            <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Carrito</span>
+                        </button>
+                        <button onclick="navigate('screen-my-orders')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-brand-500 transition-all">
+                            <i class="fa-solid fa-receipt text-purple-500 text-sm"></i>
+                            <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Pedidos</span>
+                        </button>
+                        <button onclick="navigate('screen-new-imports')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-brand-500 transition-all">
+                            <i class="fa-solid fa-ship text-cyan-500 text-sm"></i>
+                            <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Importaciones</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Productos recién importados -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">📦 Productos Recién Importados</h4>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex items-center gap-3">
+                        <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc7c5d6e?w=100&fit=crop" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Serum Vitamina C</h4>
+                            <span class="text-[9px] text-slate-400">Llegó hace 2 días</span>
+                            <span class="text-[10px] font-bold text-brand-500 block">S/ 108.00 / Caja</span>
+                        </div>
+                        <button onclick="alert('Ver producto')" class="text-brand-500 text-xs font-bold">Ver</button>
+                    </div>
+                </div>
+
+                <!-- Próximas importaciones -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">⏳ Próximas Importaciones</h4>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Crema Hidratante</h4>
+                            <span class="text-[9px] text-slate-400">Arribo: 30/08</span>
+                        </div>
+                        <button onclick="alert('Ver más')" class="text-[8px] bg-brand-500/10 text-brand-500 px-2 py-1 rounded-full font-bold">Ver</button>
+                    </div>
+                </div>
+
+                <!-- Recordatorios -->
+                <div class="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-3">
+                    <span class="text-[9px] font-bold text-yellow-600">📌 Recordatorio</span>
+                    <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-0.5">Tienes 3 productos en tu lista de espera</p>
+                </div>
+
+                <!-- Productos recomendados -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">⭐ Recomendados para ti</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 text-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                            <div class="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1596462502278-27bfdc7c5d6e?w=200&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-[8px] font-bold text-slate-800 dark:text-white mt-1 truncate">Serum Retinol</h5>
+                            <span class="text-[8px] text-brand-500 font-bold">S/ 96.00</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 text-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                            <div class="h-16 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-[8px] font-bold text-slate-800 dark:text-white mt-1 truncate">Paleta UltraGlow</h5>
+                            <span class="text-[8px] text-brand-500 font-bold">S/ 264.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: CATÁLOGO AMPLIADO -->
+            <div id="screen-catalog-advanced" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-catalogo')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-black text-slate-950 dark:text-white">🛍️ Catálogo</h2>
+                    <button onclick="alert('Filtros avanzados')" class="text-[10px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full font-bold"><i class="fa-solid fa-sliders"></i> Filtros</button>
+                </div>
+
+                <!-- Búsqueda inteligente -->
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Buscar por marca, ingrediente, registro..." class="w-full pl-11 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl text-xs font-semibold text-slate-800 dark:text-white">
+                    <button class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" onclick="alert('Búsqueda por voz')"><i class="fa-solid fa-microphone"></i></button>
+                </div>
+
+                <!-- Marcas y Categorías -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Marcas</h4>
+                    <div class="flex gap-2 overflow-x-auto pb-1">
+                        <span class="px-3 py-1 bg-brand-500 text-white rounded-full text-[9px] font-bold shrink-0">K-Beauty</span>
+                        <span class="px-3 py-1 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-full text-[9px] font-bold shrink-0">Glow Pro</span>
+                        <span class="px-3 py-1 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-full text-[9px] font-bold shrink-0">BioSkin</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">Categorías</h4>
+                    <div class="flex gap-2 overflow-x-auto pb-1">
+                        <span class="px-3 py-1 bg-brand-500 text-white rounded-full text-[9px] font-bold shrink-0">Skincare</span>
+                        <span class="px-3 py-1 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-full text-[9px] font-bold shrink-0">Maquillaje</span>
+                        <span class="px-3 py-1 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-full text-[9px] font-bold shrink-0">Cuidado Capilar</span>
+                    </div>
+                </div>
+
+                <!-- Productos destacados -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">⭐ Productos Destacados</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                            <div class="h-20 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1596462502278-27bfdc7c5d6e?w=200&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-[8px] font-bold text-slate-800 dark:text-white mt-1 truncate">Serum Hyaluronic</h5>
+                            <span class="text-[8px] text-brand-500 font-bold">S/ 96.00</span>
+                            <span class="text-[7px] text-yellow-500 block">⭐⭐⭐⭐⭐</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                            <div class="h-20 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-[8px] font-bold text-slate-800 dark:text-white mt-1 truncate">Paleta UltraGlow</h5>
+                            <span class="text-[8px] text-brand-500 font-bold">S/ 264.00</span>
+                            <span class="text-[7px] text-yellow-500 block">⭐⭐⭐⭐⭐</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Productos en tendencia -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🔥 En Tendencia</h4>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex items-center gap-3 cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                        <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=100&fit=crop" class="w-full h-full object-cover">
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Tónico Balance Clinic</h4>
+                            <span class="text-[9px] text-slate-400">Francia | +50 vendidos</span>
+                        </div>
+                        <span class="text-[8px] bg-rose-500/10 text-rose-500 px-2 py-0.5 rounded-full font-bold ml-auto">🔥 Popular</span>
+                    </div>
+                </div>
+
+                <!-- Productos relacionados -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🔗 Productos Relacionados</h4>
+                    <div class="flex gap-2 overflow-x-auto pb-1">
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 min-w-[100px] cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                            <div class="h-14 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1596462502278-27bfdc7c5d6e?w=100&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-[7px] font-bold text-slate-800 dark:text-white mt-1 truncate">Serum Vit C</h5>
+                            <span class="text-[7px] text-brand-500 font-bold">S/ 108.00</span>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 min-w-[100px] cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver producto')">
+                            <div class="h-14 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden">
+                                <img src="https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=100&fit=crop" class="w-full h-full object-cover">
+                            </div>
+                            <h5 class="text-[7px] font-bold text-slate-800 dark:text-white mt-1 truncate">Base HD</h5>
+                            <span class="text-[7px] text-brand-500 font-bold">S/ 192.00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Compartir productos -->
+                <button onclick="alert('Compartir catálogo')" class="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-bold text-xs">
+                    📤 Compartir Catálogo
+                </button>
+            </div>
+
+            <!-- NUEVA SCREEN: CARRITO AMPLIADO -->
+            <div id="screen-cart-advanced" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-cart')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">🛒 Mi Carrito</h2>
+                
+                <div class="space-y-3" id="cart-advanced-list">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex items-center gap-3">
+                        <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden flex-shrink-0">
+                            <img src="https://images.unsplash.com/photo-1596462502278-27bfdc7c5d6e?w=100&fit=crop" class="w-full h-full object-cover">
+                        </div>
+                        <div class="flex-1">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Serum Ácido Hialurónico</h4>
+                            <div class="flex items-center gap-2 mt-1">
+                                <button onclick="alert('Cantidad -')" class="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full text-xs">-</button>
+                                <span class="text-xs font-bold">2</span>
+                                <button onclick="alert('Cantidad +')" class="w-6 h-6 bg-slate-100 dark:bg-slate-800 rounded-full text-xs">+</button>
+                                <span class="text-xs font-bold text-brand-500 ml-2">S/ 192.00</span>
+                            </div>
+                        </div>
+                        <button onclick="alert('Guardar para después')" class="text-[9px] text-slate-400"><i class="fa-regular fa-bookmark"></i></button>
+                        <button onclick="alert('Eliminar')" class="text-[9px] text-rose-500"><i class="fa-regular fa-trash-can"></i></button>
+                    </div>
+                </div>
+
+                <!-- Cupones -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🎫 Cupones</h4>
+                    <div class="flex gap-2">
+                        <input type="text" placeholder="Ingresa tu cupón" class="flex-1 p-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl text-xs">
+                        <button onclick="alert('Cupón aplicado')" class="px-4 bg-brand-500 text-white rounded-2xl font-bold text-xs">Aplicar</button>
+                    </div>
+                </div>
+
+                <!-- Descuentos por volumen -->
+                <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3">
+                    <span class="text-[9px] font-bold text-emerald-600">💎 Descuentos por Volumen</span>
+                    <div class="flex justify-between text-[10px] text-slate-600 dark:text-slate-300 mt-1">
+                        <span>2+ unidades: 5% descuento</span>
+                        <span>5+ unidades: 10% descuento</span>
+                    </div>
+                </div>
+
+                <!-- Resumen de ahorro -->
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4">
+                    <h4 class="text-xs font-bold text-slate-800 dark:text-white">Resumen de Ahorro</h4>
+                    <div class="flex justify-between text-[10px] text-slate-400 mt-2">
+                        <span>Subtotal</span>
+                        <span>S/ 192.00</span>
+                    </div>
+                    <div class="flex justify-between text-[10px] text-emerald-500">
+                        <span>Descuento (5%)</span>
+                        <span>-S/ 9.60</span>
+                    </div>
+                    <div class="flex justify-between text-xs font-bold text-slate-800 dark:text-white border-t dark:border-slate-800 pt-2 mt-2">
+                        <span>Total</span>
+                        <span class="text-brand-500">S/ 182.40</span>
+                    </div>
+                </div>
+
+                <!-- Validación de compra mínima -->
+                <div class="bg-rose-500/10 border border-rose-500/20 p-3 rounded-2xl text-center">
+                    <span class="text-[9px] text-rose-500 font-bold"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Compra mínima: S/ 150.00</span>
+                    <p class="text-[10px] text-rose-400">Te faltan S/ 32.40 para completar tu pedido</p>
+                </div>
+
+                <button onclick="alert('Proceder al pago')" class="w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed" disabled>
+                    Proceder al Pago
+                </button>
+            </div>
+
+            <!-- NUEVA SCREEN: MIS PEDIDOS -->
+            <div id="screen-my-orders" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">📦 Mis Pedidos</h2>
+                
+                <div class="space-y-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white">Pedido #10248</h4>
+                                <span class="text-[9px] text-slate-400">15/08/2024</span>
+                            </div>
+                            <span class="text-[8px] bg-yellow-500/20 text-yellow-500 px-2 py-0.5 rounded-full">En Proceso</span>
+                        </div>
+                        <div class="flex gap-2 mt-2 flex-wrap">
+                            <button onclick="navigate('screen-tracking-detailed')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full font-bold">Seguimiento</button>
+                            <button onclick="alert('Descargando comprobante')" class="text-[8px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-bold">Descargar</button>
+                            <button onclick="alert('Repitiendo pedido')" class="text-[8px] bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full font-bold">Repetir</button>
+                            <button onclick="alert('Contactar importadora')" class="text-[8px] bg-blue-500/10 text-blue-500 px-3 py-1 rounded-full font-bold">Contactar</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white">Pedido #10247</h4>
+                                <span class="text-[9px] text-slate-400">10/08/2024</span>
+                            </div>
+                            <span class="text-[8px] bg-emerald-500/20 text-emerald-500 px-2 py-0.5 rounded-full">Completado</span>
+                        </div>
+                        <div class="flex gap-2 mt-2 flex-wrap">
+                            <button onclick="alert('Ver seguimiento')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full font-bold">Seguimiento</button>
+                            <button onclick="alert('Descargando comprobante')" class="text-[8px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-bold">Descargar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: FAVORITOS ORGANIZADOS POR LISTAS -->
+            <div id="screen-favorites-lists" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-favorites')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-black text-slate-950 dark:text-white">❤️ Mis Listas</h2>
+                    <button onclick="alert('Crear nueva lista')" class="text-[10px] bg-brand-500 text-white px-3 py-1.5 rounded-full font-bold">+ Nueva</button>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 cursor-pointer favorite-list hover:border-brand-500 transition-all" onclick="alert('Ver lista')">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-black text-slate-800 dark:text-white">🔄 Reposición de Stock</h4>
+                            <span class="text-[9px] text-slate-400">5 productos</span>
+                        </div>
+                        <div class="flex gap-2 mt-2 overflow-x-auto">
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Serum</span>
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Crema</span>
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Tónico</span>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 cursor-pointer favorite-list hover:border-brand-500 transition-all" onclick="alert('Ver lista')">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-black text-slate-800 dark:text-white">🛒 Próxima Compra</h4>
+                            <span class="text-[9px] text-slate-400">3 productos</span>
+                        </div>
+                        <div class="flex gap-2 mt-2 overflow-x-auto">
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Paleta</span>
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Base</span>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 cursor-pointer favorite-list hover:border-brand-500 transition-all" onclick="alert('Ver lista')">
+                        <div class="flex justify-between items-center">
+                            <h4 class="text-xs font-black text-slate-800 dark:text-white">⭐ Favoritos</h4>
+                            <span class="text-[9px] text-slate-400">8 productos</span>
+                        </div>
+                        <div class="flex gap-2 mt-2 overflow-x-auto">
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Serum</span>
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Mascarilla</span>
+                            <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-full">Labial</span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="alert('Compartir listas')" class="w-full py-3 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-bold text-xs">📤 Compartir listas</button>
+            </div>
+
+            <!-- NUEVA SCREEN: CALCULADORA DE DESCUENTOS -->
+            <div id="screen-discount-calculator" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-calculator-suite')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">🧮 Calculadora de Descuentos</h2>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400">Precio Original (S/)</label>
+                        <input type="number" id="discount-original" value="100" oninput="calcDiscount()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400">Porcentaje de Descuento (%)</label>
+                        <input type="number" id="discount-percent" value="25" oninput="calcDiscount()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                    </div>
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 p-4 rounded-2xl text-center">
+                        <span class="text-[9px] text-slate-400 block">Precio con Descuento</span>
+                        <h3 class="text-xl font-black text-emerald-500" id="discount-result">S/ 75.00</h3>
+                        <span class="text-[9px] text-slate-400">Ahorras: <strong id="discount-saved">S/ 25.00</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: CALCULADORA DE MARGEN -->
+            <div id="screen-margin-calculator" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-calculator-suite')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">📊 Calculadora de Margen</h2>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400">Costo (S/)</label>
+                        <input type="number" id="margin-cost" value="50" oninput="calcMargin()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400">Precio de Venta (S/)</label>
+                        <input type="number" id="margin-price" value="80" oninput="calcMargin()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                    </div>
+                    <div class="bg-blue-500/10 border border-blue-500/20 p-4 rounded-2xl text-center">
+                        <span class="text-[9px] text-slate-400 block">Margen de Ganancia</span>
+                        <h3 class="text-xl font-black text-blue-500" id="margin-result">60.00%</h3>
+                        <span class="text-[9px] text-slate-400">Utilidad: <strong id="margin-utility">S/ 30.00</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: CALCULADORA DE RENTABILIDAD -->
+            <div id="screen-profitability-calculator" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-calculator-suite')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">📈 Calculadora de Rentabilidad</h2>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400">Inversión Total (S/)</label>
+                        <input type="number" id="profit-invest" value="1000" oninput="calcProfitability()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-400">Retorno Esperado (S/)</label>
+                        <input type="number" id="profit-return" value="2500" oninput="calcProfitability()" class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                    </div>
+                    <div class="bg-purple-500/10 border border-purple-500/20 p-4 rounded-2xl text-center">
+                        <span class="text-[9px] text-slate-400 block">Rentabilidad</span>
+                        <h3 class="text-xl font-black text-purple-500" id="profit-result">150.00%</h3>
+                        <span class="text-[9px] text-slate-400">Ganancia Neta: <strong id="profit-net">S/ 1,500.00</strong></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: CENTRO DE APRENDIZAJE -->
+            <div id="screen-learning-center-advanced" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-academy')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">📚 Centro de Aprendizaje</h2>
+                <p class="text-xs text-slate-400">Aprende a emprender en el mundo de la belleza</p>
+
+                <!-- Guías paso a paso -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">📖 Guías Paso a Paso</h4>
+                    <div class="space-y-2">
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Abrir guía')">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">🚀</span>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white">Cómo iniciar un negocio de cosméticos</h4>
+                                    <span class="text-[8px] text-slate-400">10 min de lectura</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Abrir guía')">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">💰</span>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white">Cómo calcular precios</h4>
+                                    <span class="text-[8px] text-slate-400">8 min de lectura</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Abrir guía')">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">📱</span>
+                                <div>
+                                    <h4 class="text-xs font-bold text-slate-800 dark:text-white">Cómo vender por redes sociales</h4>
+                                    <span class="text-[8px] text-slate-400">15 min de lectura</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Videos -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🎥 Videos</h4>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Reproducir video')">
+                            <div class="h-20 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-3xl">▶️</div>
+                            <h5 class="text-[8px] font-bold text-slate-800 dark:text-white mt-1">Marketing Digital</h5>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-2 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Reproducir video')">
+                            <div class="h-20 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center text-3xl">▶️</div>
+                            <h5 class="text-[8px] font-bold text-slate-800 dark:text-white mt-1">Branding</h5>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Artículos y Cursos -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">📝 Artículos y Cursos</h4>
+                    <div class="space-y-2">
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Abrir artículo')">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white">Atención al Cliente</span>
+                                <span class="text-[8px] text-slate-400">Curso</span>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Abrir artículo')">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white">Gestión de Inventario</span>
+                                <span class="text-[8px] text-slate-400">Artículo</span>
+                            </div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 cursor-pointer hover:border-brand-500 transition-all learning-card" onclick="alert('Abrir artículo')">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs font-bold text-slate-800 dark:text-white">Educación Financiera</span>
+                                <span class="text-[8px] text-slate-400">Curso</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Evaluaciones y Certificados -->
+                <div class="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-4">
+                    <h4 class="text-xs font-bold text-brand-500">🎓 Evaluaciones y Certificados</h4>
+                    <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-1">Completa los cursos y obtén tu certificado</p>
+                    <button onclick="alert('Ver evaluaciones')" class="mt-2 text-[10px] bg-brand-500 text-white px-3 py-1.5 rounded-full font-bold">Ver evaluaciones</button>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: ACADEMIA COSMOEXPRESS -->
+            <div id="screen-cosmo-academy" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-academy')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-black text-slate-950 dark:text-white">🎓 Academia CosmoExpress</h2>
+                    <span class="text-[8px] bg-brand-500/10 text-brand-500 px-2 py-0.5 rounded-full font-bold">Progreso: 15%</span>
+                </div>
+                <p class="text-xs text-slate-400">Aprende a emprender en el negocio de la belleza desde cero.</p>
+
+                <div class="space-y-4">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 academy-level">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-[8px] bg-emerald-500/10 text-emerald-500 px-2 py-0.5 rounded-full">🟢 Completado</span>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white mt-1">Nivel Principiante</h4>
+                            </div>
+                            <span class="text-[9px] text-slate-400">5/5 módulos</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2">
+                            <div class="w-full h-1.5 bg-emerald-500 rounded-full"></div>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-[8px] text-slate-400 block">🏅 Insignias: 🎯 ⭐</span>
+                        </div>
+                        <button onclick="alert('Ver certificado')" class="mt-2 text-[8px] bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full font-bold">Ver certificado</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 academy-level">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-[8px] bg-yellow-500/10 text-yellow-500 px-2 py-0.5 rounded-full">🟡 En progreso</span>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white mt-1">Nivel Intermedio</h4>
+                            </div>
+                            <span class="text-[9px] text-slate-400">2/6 módulos</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2">
+                            <div class="w-[33%] h-1.5 bg-yellow-500 rounded-full"></div>
+                        </div>
+                        <div class="mt-2">
+                            <span class="text-[8px] text-slate-400">Módulos: Manejo de inventario, Estrategias de ventas</span>
+                        </div>
+                        <button onclick="alert('Continuar curso')" class="mt-2 text-[8px] bg-brand-500 text-white px-3 py-1 rounded-full font-bold">Continuar</button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 opacity-50 academy-level">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-[8px] bg-slate-200 dark:bg-slate-700 text-slate-500 px-2 py-0.5 rounded-full">🔒 Bloqueado</span>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white mt-1">Nivel Avanzado</h4>
+                            </div>
+                            <span class="text-[9px] text-slate-400">0/7 módulos</span>
+                        </div>
+                        <div class="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-2">
+                            <div class="w-0 h-1.5 bg-purple-500 rounded-full"></div>
+                        </div>
+                        <p class="text-[9px] text-slate-400 mt-2">Completa el nivel intermedio para desbloquear</p>
+                    </div>
+                </div>
+
+                <!-- Insignias -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🏅 Tus Insignias</h4>
+                    <div class="flex gap-3">
+                        <div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-500 text-xl">⭐</div>
+                        <div class="w-12 h-12 bg-emerald-500/20 rounded-full flex items-center justify-center text-emerald-500 text-xl">🎯</div>
+                        <div class="w-12 h-12 bg-slate-200 dark:bg-slate-700 rounded-full flex items-center justify-center text-slate-400 text-xl opacity-50">🏆</div>
+                    </div>
+                </div>
+
+                <!-- Recomendación del siguiente curso -->
+                <div class="bg-brand-500/10 border border-brand-500/20 rounded-2xl p-4">
+                    <span class="text-[9px] font-bold text-brand-500">💡 Recomendación</span>
+                    <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-1">Te recomendamos continuar con "Estrategias de ventas" para avanzar en tu nivel intermedio.</p>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: ASISTENTE VIRTUAL INTELIGENTE -->
+            <div id="screen-virtual-assistant" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">🤖 Asistente Virtual</h2>
+                <div class="bg-gradient-to-r from-brand-500/10 to-purple-500/10 border border-brand-500/20 rounded-2xl p-4 text-center">
+                    <span class="text-4xl">💬</span>
+                    <p class="text-xs text-slate-600 dark:text-slate-300 mt-2">¡Hola! Soy tu asistente CosmoIA. ¿En qué puedo ayudarte?</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 space-y-3 max-h-60 overflow-y-auto" id="assistant-chat">
+                    <div class="bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 dark:text-slate-300 assistant-message">
+                        👋 ¡Bienvenido! Puedes preguntarme sobre productos, pedidos, importaciones y más.
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <input type="text" id="assistant-input" placeholder="Escribe tu pregunta..." class="flex-1 p-3 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl text-xs">
+                    <button onclick="sendAssistantMessage()" class="px-4 bg-brand-500 text-white rounded-2xl font-bold text-xs">Enviar</button>
+                    <button onclick="alert('🎤 Modo voz activado')" class="px-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500"><i class="fa-solid fa-microphone"></i></button>
+                    <button onclick="alert('📷 Subir imagen para identificar producto')" class="px-3 bg-slate-100 dark:bg-slate-800 rounded-2xl text-slate-500"><i class="fa-solid fa-image"></i></button>
+                </div>
+                <div class="flex gap-2 overflow-x-auto pb-1">
+                    <button onclick="quickAssistantQuestion('¿Cuál es el precio mínimo de compra?')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap">💲 Precio mínimo</button>
+                    <button onclick="quickAssistantQuestion('¿Cómo puedo rastrear mi pedido?')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap">📦 Rastrear pedido</button>
+                    <button onclick="quickAssistantQuestion('¿Qué productos me recomiendas?')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap">⭐ Recomendaciones</button>
+                    <button onclick="quickAssistantQuestion('¿Cómo funciona la importación?')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap">🚢 Importación</button>
+                    <button onclick="quickAssistantQuestion('¿Cuáles son los métodos de pago?')" class="text-[8px] bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full whitespace-nowrap">💳 Métodos de pago</button>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: MI NEGOCIO -->
+            <div id="screen-my-business" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">🏪 Mi Negocio</h2>
+                
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[8px] text-slate-400">Ventas</span>
+                        <h3 class="text-sm font-black text-emerald-500">S/ 12,450</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[8px] text-slate-400">Ganancias</span>
+                        <h3 class="text-sm font-black text-brand-500">S/ 4,890</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[8px] text-slate-400">Clientes</span>
+                        <h3 class="text-sm font-black text-blue-500">47</h3>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 text-center business-stat">
+                        <span class="text-[8px] text-slate-400">Productos</span>
+                        <h3 class="text-sm font-black text-purple-500">23</h3>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2">
+                    <button onclick="alert('Registrar venta')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-emerald-500 transition-all">
+                        <i class="fa-solid fa-plus text-emerald-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Venta</span>
+                    </button>
+                    <button onclick="alert('Registrar cliente')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-blue-500 transition-all">
+                        <i class="fa-solid fa-user-plus text-blue-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Cliente</span>
+                    </button>
+                    <button onclick="alert('Registrar gasto')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-red-500 transition-all">
+                        <i class="fa-solid fa-coins text-red-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Gasto</span>
+                    </button>
+                    <button onclick="alert('Ver inventario')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-yellow-500 transition-all">
+                        <i class="fa-solid fa-warehouse text-yellow-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Inventario</span>
+                    </button>
+                    <button onclick="alert('Ver estadísticas')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-purple-500 transition-all">
+                        <i class="fa-solid fa-chart-line text-purple-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Estadísticas</span>
+                    </button>
+                    <button onclick="alert('Objetivos de ventas')" class="bg-white dark:bg-slate-900 border dark:border-slate-800 p-3 rounded-2xl text-center hover:border-amber-500 transition-all">
+                        <i class="fa-solid fa-bullseye text-amber-500 text-sm"></i>
+                        <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300 block mt-1">Objetivos</span>
+                    </button>
+                </div>
+
+                <!-- Productos más vendidos -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">🏆 Productos más vendidos</h4>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center">
+                        <span class="text-xs text-slate-800 dark:text-white">Serum Ácido Hialurónico</span>
+                        <span class="text-[9px] text-brand-500 font-bold">45 unidades</span>
+                    </div>
+                </div>
+
+                <!-- Productos por reponer -->
+                <div>
+                    <h4 class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2">⚠️ Productos por reponer</h4>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center">
+                        <span class="text-xs text-slate-800 dark:text-white">Paleta UltraGlow</span>
+                        <span class="text-[9px] text-rose-500 font-bold">Stock: 2 unidades</span>
+                    </div>
+                </div>
+
+                <!-- Ingresos y gastos -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-3 text-center">
+                        <span class="text-[8px] text-slate-400">Ingresos</span>
+                        <h4 class="text-sm font-black text-emerald-500">S/ 18,240</h4>
+                    </div>
+                    <div class="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-3 text-center">
+                        <span class="text-[8px] text-slate-400">Gastos</span>
+                        <h4 class="text-sm font-black text-rose-500">S/ 5,790</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: COMUNIDAD -->
+            <div id="screen-community" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-dashboard')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-black text-slate-950 dark:text-white">🌐 Comunidad</h2>
+                    <button onclick="alert('Nueva publicación')" class="text-[10px] bg-brand-500 text-white px-3 py-1.5 rounded-full font-bold">+ Publicar</button>
+                </div>
+                <div class="space-y-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 community-post hover:border-brand-500 transition-all">
+                        <div class="flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=50&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 dark:text-white">María G.</h4>
+                                <span class="text-[8px] text-slate-400">Hace 2h</span>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-2">¡Hola! Alguien ha probado el nuevo serum de vitamina C? Me gustaría saber sus experiencias.</p>
+                        <div class="flex gap-4 mt-2 text-[9px] text-slate-400">
+                            <button onclick="alert('👍 Me gusta')" class="hover:text-brand-500 transition-colors">❤️ 12</button>
+                            <button onclick="alert('💬 Comentar')" class="hover:text-brand-500 transition-colors">💬 5</button>
+                            <button onclick="alert('🔗 Compartir')" class="hover:text-brand-500 transition-colors">🔗 Compartir</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 community-post hover:border-brand-500 transition-all">
+                        <div class="flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=50&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 dark:text-white">Carlos R.</h4>
+                                <span class="text-[8px] text-slate-400">Hace 5h</span>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-2">Consejo: Organicen su inventario por categorías, les ahorrará mucho tiempo en la búsqueda.</p>
+                        <div class="flex gap-4 mt-2 text-[9px] text-slate-400">
+                            <button onclick="alert('👍 Me gusta')" class="hover:text-brand-500 transition-colors">❤️ 8</button>
+                            <button onclick="alert('💬 Comentar')" class="hover:text-brand-500 transition-colors">💬 3</button>
+                            <button onclick="alert('🔗 Compartir')" class="hover:text-brand-500 transition-colors">🔗 Compartir</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 community-post hover:border-brand-500 transition-all">
+                        <div class="flex items-center gap-2">
+                            <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=50&fit=crop" class="w-8 h-8 rounded-full object-cover">
+                            <div>
+                                <h4 class="text-xs font-bold text-slate-800 dark:text-white">Laura S.</h4>
+                                <span class="text-[8px] text-slate-400">Hace 8h</span>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-slate-600 dark:text-slate-300 mt-2">Comparto foto de mi nuevo setup de ventas 📸 ¿Qué les parece?</p>
+                        <div class="mt-2 bg-slate-100 dark:bg-slate-800 rounded-xl h-24 flex items-center justify-center text-slate-400 text-xs">
+                            📷 Foto compartida
+                        </div>
+                        <div class="flex gap-4 mt-2 text-[9px] text-slate-400">
+                            <button onclick="alert('👍 Me gusta')" class="hover:text-brand-500 transition-colors">❤️ 15</button>
+                            <button onclick="alert('💬 Comentar')" class="hover:text-brand-500 transition-colors">💬 7</button>
+                            <button onclick="alert('🔗 Compartir')" class="hover:text-brand-500 transition-colors">🔗 Compartir</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: PERFIL COMPLETO -->
+            <div id="screen-profile-full" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-profile')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 text-center">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&fit=crop" class="w-20 h-20 object-cover rounded-full mx-auto border-4 border-brand-500">
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white mt-2">Bella Distribuciones S.A.C.</h3>
+                    <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full font-bold">RUC: 20123456789</span>
+                    <div class="flex justify-center gap-4 mt-3">
+                        <span class="text-[9px] bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full font-bold">👑 Nivel Oro</span>
+                        <span class="text-[9px] bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full font-bold">⭐ 4,250 pts</span>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Editar datos')">
+                        <span class="text-xs text-slate-600 dark:text-slate-300">📋 Datos personales</span>
+                        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver dirección')">
+                        <span class="text-xs text-slate-600 dark:text-slate-300">📍 Dirección</span>
+                        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver métodos de pago')">
+                        <span class="text-xs text-slate-600 dark:text-slate-300">💳 Métodos de pago</span>
+                        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Cambiar contraseña')">
+                        <span class="text-xs text-slate-600 dark:text-slate-300">🔒 Seguridad</span>
+                        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Verificación de identidad')">
+                        <span class="text-xs text-slate-600 dark:text-slate-300">🆔 Verificación de identidad</span>
+                        <span class="text-[8px] bg-emerald-500/20 text-emerald-500 px-2 py-0.5 rounded-full">Verificada</span>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="navigate('screen-config')">
+                        <span class="text-xs text-slate-600 dark:text-slate-300">⚙️ Configuración</span>
+                        <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i>
+                    </div>
+                    <button onclick="navigate('screen-welcome')" class="w-full p-4 bg-rose-500/10 text-rose-500 rounded-2xl font-bold text-xs border border-rose-500/20 hover:bg-rose-500/20 transition-all">🚪 Cerrar Sesión</button>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: CONFIGURACIÓN -->
+            <div id="screen-config" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-profile-full')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">⚙️ Configuración</h2>
+                <div class="space-y-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4">
+                        <label class="text-[10px] font-bold text-slate-400 block">Idioma</label>
+                        <select class="w-full p-3 bg-slate-50 dark:bg-slate-950 rounded-xl text-xs mt-1 border dark:border-slate-800">
+                            <option>Español</option>
+                            <option>English</option>
+                            <option>Português</option>
+                        </select>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex justify-between items-center">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Tema Oscuro</h4>
+                            <span class="text-[9px] text-slate-400">Cambiar apariencia de la app</span>
+                        </div>
+                        <button onclick="toggleDarkMode()" class="w-12 h-6 bg-slate-200 dark:bg-brand-500 rounded-full relative transition-colors">
+                            <span class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-all dark:translate-x-6"></span>
+                        </button>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex justify-between items-center">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Notificaciones</h4>
+                            <span class="text-[9px] text-slate-400">Recibir alertas y promociones</span>
+                        </div>
+                        <input type="checkbox" checked class="accent-brand-500 w-5 h-5">
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Configurar privacidad')">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Privacidad</h4>
+                            <span class="text-[9px] text-slate-400">Configurar datos compartidos</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Ver dispositivos')">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Dispositivos conectados</h4>
+                            <span class="text-[9px] text-slate-400">2 dispositivos activos</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Configurar preferencias')">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Preferencias de compra</h4>
+                            <span class="text-[9px] text-slate-400">Categorías favoritas</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 flex justify-between items-center cursor-pointer hover:border-brand-500 transition-all" onclick="alert('Configurar preferencias de aprendizaje')">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">Preferencias de aprendizaje</h4>
+                            <span class="text-[9px] text-slate-400">Temas de interés</span>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-400"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: NOTIFICACIONES AMPLIADAS -->
+            <div id="screen-notifications-advanced" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-notifications')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-lg font-black text-slate-950 dark:text-white">🔔 Notificaciones</h2>
+                    <button onclick="alert('Marcar todas como leídas')" class="text-[10px] text-slate-400 font-bold">Marcar todas</button>
+                </div>
+                <div class="space-y-2">
+                    <div class="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-2xl notification-item hover:border-brand-500 transition-all cursor-pointer" onclick="alert('Ver notificación')">
+                        <div class="flex justify-between">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">✅ Pedido #10248 confirmado</h4>
+                            <span class="text-[8px] text-slate-400">Hace 5 min</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400">Tu pedido ha sido confirmado y está en proceso</p>
+                    </div>
+                    <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-2xl notification-item hover:border-brand-500 transition-all cursor-pointer" onclick="alert('Ver notificación')">
+                        <div class="flex justify-between">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">📦 Nuevo producto importado</h4>
+                            <span class="text-[8px] text-slate-400">Hace 30 min</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400">Serum de Niacinamida ha llegado a puerto</p>
+                    </div>
+                    <div class="bg-yellow-500/10 border border-yellow-500/20 p-3 rounded-2xl notification-item hover:border-brand-500 transition-all cursor-pointer" onclick="alert('Ver notificación')">
+                        <div class="flex justify-between">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">⚡ Promoción flash activa</h4>
+                            <span class="text-[8px] text-slate-400">Hace 1h</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400">25% Off en Labiales - 2h restantes</p>
+                    </div>
+                    <div class="bg-rose-500/10 border border-rose-500/20 p-3 rounded-2xl notification-item hover:border-brand-500 transition-all cursor-pointer" onclick="alert('Ver notificación')">
+                        <div class="flex justify-between">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">⚠️ Alerta de stock</h4>
+                            <span class="text-[8px] text-slate-400">Hace 2h</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400">Paleta UltraGlow - Stock bajo: 2 unidades</p>
+                    </div>
+                    <div class="bg-purple-500/10 border border-purple-500/20 p-3 rounded-2xl notification-item hover:border-brand-500 transition-all cursor-pointer" onclick="alert('Ver notificación')">
+                        <div class="flex justify-between">
+                            <h4 class="text-xs font-bold text-slate-800 dark:text-white">📚 Nuevo curso disponible</h4>
+                            <span class="text-[8px] text-slate-400">Hace 3h</span>
+                        </div>
+                        <p class="text-[9px] text-slate-400">Marketing Digital para emprendedores</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NUEVA SCREEN: SEGUIMIENTO DETALLADO DE IMPORTACIONES -->
+            <div id="screen-tracking-detailed" class="screen hidden p-4 space-y-4 fade-in">
+                <button onclick="navigate('screen-tracking')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
+                <h2 class="text-lg font-black text-slate-950 dark:text-white">🚢 Seguimiento Detallado</h2>
+                <div class="space-y-3">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white">Contenedor COSU-2024</h4>
+                                <span class="text-[9px] text-slate-400">Buque: MSC Cosmo</span>
+                            </div>
+                            <span class="text-[8px] bg-emerald-500/20 text-emerald-500 px-2 py-0.5 rounded-full">En Ruta</span>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                <span class="text-slate-400">Salida de Shanghái</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">10/08</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                                <span class="text-slate-400">En tránsito - Pacífico</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">15/08</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-slate-300 rounded-full"></span>
+                                <span class="text-slate-400">Arribo a Callao</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">25/08</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-slate-300 rounded-full"></span>
+                                <span class="text-slate-400">Despacho aduanero</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">27/08</span>
+                            </div>
+                        </div>
+                        <div class="mt-3 pt-3 border-t dark:border-slate-800">
+                            <span class="text-[9px] text-slate-400">📦 Productos en este contenedor:</span>
+                            <div class="flex gap-2 mt-1">
+                                <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Serum HA (200u)</span>
+                                <span class="text-[8px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">Crema (150u)</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white">Contenedor MSCU-1024</h4>
+                                <span class="text-[9px] text-slate-400">Buque: Maersk Pacific</span>
+                            </div>
+                            <span class="text-[8px] bg-emerald-500/20 text-emerald-500 px-2 py-0.5 rounded-full">En Puerto</span>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                <span class="text-slate-400">Salida de Busan</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">01/08</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                <span class="text-slate-400">Llegada a Callao</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">15/08</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-xs">
+                                <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                                <span class="text-slate-400">En despacho aduanero</span>
+                                <span class="text-[9px] text-slate-500 ml-auto">16/08</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ======================== DRAWER (MENÚ LATERAL) ======================== -->
+        <div class="drawer-overlay" id="drawer-overlay" onclick="toggleDrawer()"></div>
+        <div class="drawer-panel" id="drawer-panel">
+            <button class="drawer-close-btn" onclick="toggleDrawer()"><i class="fa-solid fa-xmark"></i></button>
+            
+            <!-- Perfil en el Drawer -->
+            <div class="px-5 pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3 mt-2">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&fit=crop" class="w-12 h-12 rounded-full object-cover border-2 border-brand-500">
+                    <div>
+                        <h4 class="text-sm font-bold text-white">Bella Distribuciones</h4>
+                        <span class="text-[10px] text-gold-400">👑 Nivel Oro</span>
+                        <span class="text-[9px] text-slate-400 block">⭐ 4,250 pts</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="drawer-section-title">Principal</div>
+            <div class="drawer-item active" onclick="navigate('screen-user-dashboard'); toggleDrawer();">
+                <i class="fa-solid fa-house"></i> Inicio
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-catalog-advanced'); toggleDrawer();">
+                <i class="fa-solid fa-cubes"></i> Catálogo
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-cart-advanced'); toggleDrawer();">
+                <i class="fa-solid fa-cart-shopping"></i> Carrito
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-my-orders'); toggleDrawer();">
+                <i class="fa-solid fa-receipt"></i> Mis Pedidos
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-favorites-lists'); toggleDrawer();">
+                <i class="fa-solid fa-heart"></i> Favoritos
+            </div>
+
+            <div class="drawer-section-title">Herramientas</div>
+            <div class="drawer-item" onclick="navigate('screen-calculator-suite'); toggleDrawer();">
+                <i class="fa-solid fa-calculator"></i> Calculadoras
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-discount-calculator'); toggleDrawer();">
+                <i class="fa-solid fa-percent"></i> Calculadora Descuentos
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-margin-calculator'); toggleDrawer();">
+                <i class="fa-solid fa-chart-pie"></i> Calculadora Margen
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-profitability-calculator'); toggleDrawer();">
+                <i class="fa-solid fa-arrow-trend-up"></i> Calculadora Rentabilidad
+            </div>
+
+            <div class="drawer-section-title">Aprendizaje</div>
+            <div class="drawer-item" onclick="navigate('screen-learning-center-advanced'); toggleDrawer();">
+                <i class="fa-solid fa-book-open"></i> Centro de Aprendizaje
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-cosmo-academy'); toggleDrawer();">
+                <i class="fa-solid fa-graduation-cap"></i> Academia CosmoExpress
+            </div>
+
+            <div class="drawer-section-title">Negocio</div>
+            <div class="drawer-item" onclick="navigate('screen-my-business'); toggleDrawer();">
+                <i class="fa-solid fa-store"></i> Mi Negocio
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-community'); toggleDrawer();">
+                <i class="fa-solid fa-users"></i> Comunidad
+            </div>
+
+            <div class="drawer-section-title">Soporte</div>
+            <div class="drawer-item" onclick="navigate('screen-virtual-assistant'); toggleDrawer();">
+                <i class="fa-solid fa-robot"></i> Asistente Virtual
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-faq-advanced'); toggleDrawer();">
+                <i class="fa-solid fa-circle-question"></i> Preguntas Frecuentes
+            </div>
+
+            <div class="drawer-section-title">Cuenta</div>
+            <div class="drawer-item" onclick="navigate('screen-profile-full'); toggleDrawer();">
+                <i class="fa-solid fa-user"></i> Perfil
+            </div>
+            <div class="drawer-item" onclick="navigate('screen-config'); toggleDrawer();">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </div>
+            <div class="drawer-item text-rose-500" onclick="navigate('screen-welcome'); toggleDrawer();">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
+            </div>
+        </div>
+
+        <!-- BARRA DE NAVEGACIÓN INFERIOR GLOBAL (CLIENTE) - EXISTENTE (NO MODIFICADO) -->
+        <div class="hidden h-20 bg-white dark:bg-slate-900 border-t border-slate-100 dark:border-slate-850 flex justify-around items-center px-4 shrink-0 z-50 transition-colors duration-300" id="global-nav-bar">
+            <button onclick="navigate('screen-dashboard')" class="nav-btn text-slate-400 flex flex-col items-center gap-1">
+                <i class="fa-solid fa-house text-base"></i>
+                <span class="text-[8px] font-bold">Inicio</span>
+            </button>
+            <button onclick="navigate('screen-catalogo')" class="nav-btn text-slate-400 flex flex-col items-center gap-1">
+                <i class="fa-solid fa-cubes text-base"></i>
+                <span class="text-[8px] font-bold">Catálogo</span>
+            </button>
+            <button onclick="navigate('screen-cart')" class="nav-btn text-slate-400 flex flex-col items-center gap-1 relative">
+                <span id="nav-cart-badge" class="absolute -top-1 right-1 bg-brand-500 text-white text-[8px] font-black w-4 h-4 rounded-full flex items-center justify-center opacity-0">0</span>
+                <i class="fa-solid fa-truck-ramp-box text-base"></i>
+                <span class="text-[8px] font-bold">Pedido</span>
+            </button>
+            <button onclick="navigate('screen-tracking')" class="nav-btn text-slate-400 flex flex-col items-center gap-1">
+                <i class="fa-solid fa-ship text-base"></i>
+                <span class="text-[8px] font-bold">Tránsito</span>
+            </button>
+            <button onclick="navigate('screen-profile')" class="nav-btn text-slate-400 flex flex-col items-center gap-1">
+                <i class="fa-solid fa-user text-base"></i>
+                <span class="text-[8px] font-bold">Perfil</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- NÚCLEO DE PROGRAMACIÓN (CORE INTERACTIVO) -->
+    <script>
+        // ==================== DATOS EXISTENTES (NO MODIFICADOS) ====================
+        const products = [
+            { 
+                id: 1, 
+                name: "Serum de Acido", 
+                brand: "K-Beauty Original", 
+                country: "Corea", 
+                image: "serum_acido.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 96.00 },
+                    gruesa: { qty: 144, price: 864.00 },
+                    cajon: { qty: 240, price: 1200.00 }
+                }
+            },
+            { 
+                id: 2, 
+                name: "Paleta Sombras UltraGlow", 
+                brand: "Glow Pro", 
+                country: "EE.UU.", 
+                image: "Paletasobraltraglow.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 264.00 },
+                    gruesa: { qty: 144, price: 2592.00 },
+                    cajon: { qty: 240, price: 3840.00 }
+                }
+            },
+            { 
+                id: 3, 
+                name: "Tónico Balance Clinic", 
+                brand: "BioSkin", 
+                country: "Francia", 
+                image: "tonico.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 138.00 },
+                    gruesa: { qty: 144, price: 1296.00 },
+                    cajon: { qty: 240, price: 1920.00 }
+                }
+            }
+        ];
+
+        let cart = [];
+        let selectedProduct = null;
+        let selectedTier = 'caja';
+
+        // ==================== FUNCIONES EXISTENTES (NO MODIFICADAS) ====================
+        function navigate(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => screen.classList.add('hidden'));
+            document.getElementById(screenId).classList.remove('hidden');
+
+            // Solo mostrar la barra de navegación en las pantallas principales del cliente
+            const showNavScreens = [
+                'screen-dashboard', 'screen-catalogo', 'screen-cart', 'screen-tracking', 'screen-profile'
+            ];
+
+            const navBar = document.getElementById('global-nav-bar');
+
+            if (showNavScreens.includes(screenId)) {
+                navBar.classList.remove('hidden');
+            } else {
+                navBar.classList.add('hidden');
+            }
+
+            // Cerrar drawer al navegar
+            closeDrawer();
+
+            updateNavHighlight(screenId);
+
+            if (screenId === 'screen-dashboard') renderDashboard();
+            if (screenId === 'screen-catalogo') renderCatalog();
+            if (screenId === 'screen-admin-products') renderAdminProducts();
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        function runVerificationProcess() {
+            navigate('screen-verify-loading');
+            setTimeout(() => { navigate('screen-verify-success'); }, 1500);
+        }
+
+        function loginAdminPortal() {
+            const selectedRole = document.getElementById('admin-role-select').value;
+            document.getElementById('admin-active-role').innerText = "Rol: " + selectedRole;
+            navigate('screen-admin-dashboard');
+        }
+
+        function renderDashboard() {
+            const container = document.getElementById('dashboard-recent-grid');
+            container.innerHTML = '';
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-3 flex flex-col justify-between h-52 cursor-pointer shadow-sm";
+                card.onclick = () => openProductDetail(p.id);
+                card.innerHTML = `
+                    <div class="h-24 w-full rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <h4 class="text-[10px] font-black text-slate-850 dark:text-white truncate">${p.name}</h4>
+                        <div class="text-[9px] text-slate-400">Desde S/ ${p.scalePrices.cajon.price} (Cajón)</div>
+                        <span class="text-xs font-black text-brand-500 block">S/ ${p.scalePrices.caja.price} <span class="text-[8px] text-slate-400">/ Caja</span></span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderCatalog() {
+            const container = document.getElementById('catalogo-products-grid');
+            container.innerHTML = '';
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = "bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-3 flex flex-col justify-between h-52 cursor-pointer shadow-sm";
+                card.onclick = () => openProductDetail(p.id);
+                card.innerHTML = `
+                    <div class="h-24 w-full rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                    </div>
+                    <div class="mt-2 space-y-1">
+                        <h4 class="text-[10px] font-black text-slate-850 dark:text-white truncate">${p.name}</h4>
+                        <div class="text-[9px] text-slate-400">Desde S/ ${p.scalePrices.cajon.price} (Cajón)</div>
+                        <span class="text-xs font-black text-brand-500 block">S/ ${p.scalePrices.caja.price} <span class="text-[8px] text-slate-400">/ Caja</span></span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function openProductDetail(id) {
+            selectedProduct = products.find(p => p.id === id);
+            selectedTier = 'caja';
+
+            document.getElementById('detail-p-image').src = selectedProduct.image;
+            document.getElementById('detail-p-name').innerText = selectedProduct.name;
+            document.getElementById('detail-p-country').innerText = selectedProduct.country;
+
+            document.getElementById('tier-caja-price').innerText = "S/ " + selectedProduct.scalePrices.caja.price.toFixed(2);
+            document.getElementById('tier-gruesa-price').innerText = "S/ " + selectedProduct.scalePrices.gruesa.price.toFixed(2);
+            document.getElementById('tier-cajon-price').innerText = "S/ " + selectedProduct.scalePrices.cajon.price.toFixed(2);
+
+            selectWholesaleTier('caja');
+            navigate('screen-detalle');
+        }
+
+        function selectWholesaleTier(tier) {
+            selectedTier = tier;
+            document.getElementById('tier-caja-btn').className = "p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800";
+            document.getElementById('tier-gruesa-btn').className = "p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800";
+            document.getElementById('tier-cajon-btn').className = "p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800";
+
+            document.getElementById(`tier-${tier}-btn`).className = "p-2 border rounded-xl text-center bg-brand-500/10 border-brand-500 text-brand-500";
+        }
+
+        function addToCartCurrent() {
+            if (!selectedProduct) return;
+            const price = selectedProduct.scalePrices[selectedTier].price;
+            const qtyDesc = `${selectedTier.toUpperCase()} (${selectedProduct.scalePrices[selectedTier].qty}u)`;
+
+            cart.push({
+                product: selectedProduct,
+                tier: selectedTier,
+                qtyDesc: qtyDesc,
+                price: price
+            });
+
+            updateCartBadge();
+            renderCart();
+            navigate('screen-cart');
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-list-container');
+            container.innerHTML = '';
+            
+            let fob = 0;
+            cart.forEach((item, index) => {
+                fob += item.price;
+                const row = document.createElement('div');
+                row.className = "bg-white dark:bg-slate-900 border dark:border-slate-800 p-4 rounded-2xl flex justify-between items-center text-xs";
+                row.innerHTML = `
+                    <div>
+                        <h4 class="font-bold text-slate-800 dark:text-white">${item.product.name}</h4>
+                        <span class="text-[9px] text-brand-500 font-bold uppercase">${item.qtyDesc}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <strong class="text-slate-950 dark:text-white">S/ ${item.price.toFixed(2)}</strong>
+                        <button onclick="removeFromCart(${index})" class="text-rose-500 text-xs"><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            const aduanas = fob * 0.18;
+            const total = fob + aduanas;
+
+            document.getElementById('cart-fob-val').innerText = "S/ " + fob.toFixed(2);
+            document.getElementById('cart-tax-val').innerText = "S/ " + aduanas.toFixed(2);
+            document.getElementById('cart-total-val').innerText = "S/ " + total.toFixed(2);
+
+            const minOrder = 150.00;
+            const warningBox = document.getElementById('cart-min-warning');
+            const checkoutBtn = document.getElementById('btn-checkout-trigger');
+
+            if (fob < minOrder) {
+                warningBox.classList.remove('hidden');
+                const diff = minOrder - fob;
+                document.getElementById('cart-min-warning-txt').innerText = `Te faltan S/ ${diff.toFixed(2)} para poder procesar la mercadería.`;
+                checkoutBtn.disabled = true;
+                checkoutBtn.className = "w-full py-4 bg-slate-300 dark:bg-slate-800 text-slate-400 rounded-2xl font-bold text-xs uppercase tracking-wider cursor-not-allowed";
+            } else {
+                warningBox.classList.add('hidden');
+                checkoutBtn.disabled = false;
+                checkoutBtn.className = "w-full py-4 bg-brand-600 hover:bg-brand-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-lg shadow-brand-500/20 cursor-pointer";
+            }
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartBadge();
+            renderCart();
+        }
+
+        function updateCartBadge() {
+            const badge = document.getElementById('nav-cart-badge');
+            badge.innerText = cart.length;
+            if (cart.length > 0) {
+                badge.classList.remove('opacity-0');
+            } else {
+                badge.classList.add('opacity-0');
+            }
+        }
+
+        function confirmOrder() {
+            alert('¡Liquidación enviada con éxito! Su orden está en validación.');
+            cart = [];
+            updateCartBadge();
+            navigate('screen-tracking');
+        }
+
+        function toggleSuiteCalc(mode) {
+            const btnUtil = document.getElementById('btn-calc-util');
+            const btnInv = document.getElementById('btn-calc-inv');
+            const viewUtil = document.getElementById('calc-util-view');
+            const viewInv = document.getElementById('calc-inv-view');
+
+            if (mode === 'util') {
+                btnUtil.className = "w-full text-[10px] font-black py-2 rounded-xl transition-all bg-brand-600 text-white";
+                btnInv.className = "w-full text-[10px] font-black py-2 rounded-xl transition-all text-slate-500";
+                viewUtil.classList.remove('hidden');
+                viewInv.classList.add('hidden');
+            } else {
+                btnInv.className = "w-full text-[10px] font-black py-2 rounded-xl transition-all bg-brand-600 text-white";
+                btnUtil.className = "w-full text-[10px] font-black py-2 rounded-xl transition-all text-slate-500";
+                viewInv.classList.remove('hidden');
+                viewUtil.classList.add('hidden');
+                runMathInvestment();
+            }
+        }
+
+        function runMathUtil() {
+            const cost = parseFloat(document.getElementById('calc-unit-cost').value) || 0;
+            const sale = parseFloat(document.getElementById('calc-unit-sale').value) || 0;
+            const roiRes = document.getElementById('calc-roi-res');
+
+            if (cost <= 0) {
+                roiRes.innerText = "S/ 0.00 de Utilidad (0.00% ROI)";
+                return;
+            }
+
+            const utility = sale - cost;
+            const roi = (utility / cost) * 100;
+            roiRes.innerText = `S/ ${utility.toFixed(2)} de Utilidad (${roi.toFixed(2)}% ROI)`;
+        }
+
+        function runMathInvestment() {
+            const capital = parseFloat(document.getElementById('calc-capital').value) || 0;
+            const resultBox = document.getElementById('calc-inv-results');
+            resultBox.innerHTML = '';
+
+            if (capital < 150) {
+                resultBox.innerHTML = '<div>⚠️ El capital mínimo debe ser mayor a S/ 150.00</div>';
+                return;
+            }
+
+            const targetQty1 = Math.floor((capital * 0.5) / products[0].scalePrices.caja.price);
+            const targetQty2 = Math.floor((capital * 0.5) / products[1].scalePrices.caja.price);
+
+            resultBox.innerHTML += `<div>📦 ${targetQty1} Caja(s) de ${products[0].name} (S/ ${(targetQty1 * products[0].scalePrices.caja.price).toFixed(2)})</div>`;
+            if (targetQty2 > 0) {
+                resultBox.innerHTML += `<div>📦 ${targetQty2} Caja(s) de ${products[1].name} (S/ ${(targetQty2 * products[1].scalePrices.caja.price).toFixed(2)})</div>`;
+            }
+        }
+
+        function renderAdminProducts() {
+            const container = document.getElementById('admin-product-list');
+            container.innerHTML = '';
+            products.forEach(p => {
+                const row = document.createElement('div');
+                row.className = "p-3 bg-slate-900 border border-slate-800 rounded-xl flex justify-between items-center text-xs";
+                row.innerHTML = `
+                    <span>${p.name}</span>
+                    <button onclick="alert('Lote editado')" class="text-gold-500 font-bold text-[10px]">EDITAR</button>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        function addNewAdminProduct() {
+            products.push({
+                id: products.length + 1,
+                name: "Serum Retinol Advanced",
+                brand: "K-Beauty Drops",
+                country: "Corea",
+                image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&fit=crop",
+                scalePrices: {
+                    caja: { qty: 12, price: 120.00 },
+                    gruesa: { qty: 144, price: 1080.00 },
+                    cajon: { qty: 240, price: 1560.00 }
+                }
+            });
+            renderAdminProducts();
+            alert('Nuevo lote operativo inyectado.');
+        }
+
+        function updateNavHighlight(screenId) {
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-brand-500');
+                btn.classList.add('text-slate-400');
+            });
+            if (screenId === 'screen-dashboard') document.querySelectorAll('.nav-btn')[0]?.classList.add('text-brand-500');
+            if (screenId === 'screen-catalogo') document.querySelectorAll('.nav-btn')[1]?.classList.add('text-brand-500');
+            if (screenId === 'screen-cart') document.querySelectorAll('.nav-btn')[2]?.classList.add('text-brand-500');
+            if (screenId === 'screen-tracking') document.querySelectorAll('.nav-btn')[3]?.classList.add('text-brand-500');
+            if (screenId === 'screen-profile') document.querySelectorAll('.nav-btn')[4]?.classList.add('text-brand-500');
+        }
+
+        function shareProduct() {
+            alert('Enlace del lote copiado al portapapeles. ¡Listo para compartir!');
+        }
+
+        function searchCatalog(value) {
+            console.log('Buscando:', value);
+        }
+
+        // ==================== NUEVAS FUNCIONES DEL DRAWER ====================
+        function toggleDrawer() {
+            const overlay = document.getElementById('drawer-overlay');
+            const panel = document.getElementById('drawer-panel');
+            overlay.classList.toggle('active');
+            panel.classList.toggle('open');
+        }
+
+        function closeDrawer() {
+            const overlay = document.getElementById('drawer-overlay');
+            const panel = document.getElementById('drawer-panel');
+            overlay.classList.remove('active');
+            panel.classList.remove('open');
+        }
+
+        // ==================== NUEVAS FUNCIONES DE CALCULADORAS ====================
+        function calcDiscount() {
+            const original = parseFloat(document.getElementById('discount-original').value) || 0;
+            const percent = parseFloat(document.getElementById('discount-percent').value) || 0;
+            const discount = original * (percent / 100);
+            const result = original - discount;
+            document.getElementById('discount-result').innerText = 'S/ ' + result.toFixed(2);
+            document.getElementById('discount-saved').innerText = 'S/ ' + discount.toFixed(2);
+        }
+
+        function calcMargin() {
+            const cost = parseFloat(document.getElementById('margin-cost').value) || 0;
+            const price = parseFloat(document.getElementById('margin-price').value) || 0;
+            if (cost <= 0) {
+                document.getElementById('margin-result').innerText = '0.00%';
+                document.getElementById('margin-utility').innerText = 'S/ 0.00';
+                return;
+            }
+            const utility = price - cost;
+            const margin = (utility / price) * 100;
+            document.getElementById('margin-result').innerText = margin.toFixed(2) + '%';
+            document.getElementById('margin-utility').innerText = 'S/ ' + utility.toFixed(2);
+        }
+
+        function calcProfitability() {
+            const invest = parseFloat(document.getElementById('profit-invest').value) || 0;
+            const ret = parseFloat(document.getElementById('profit-return').value) || 0;
+            if (invest <= 0) {
+                document.getElementById('profit-result').innerText = '0.00%';
+                document.getElementById('profit-net').innerText = 'S/ 0.00';
+                return;
+            }
+            const net = ret - invest;
+            const profitability = (net / invest) * 100;
+            document.getElementById('profit-result').innerText = profitability.toFixed(2) + '%';
+            document.getElementById('profit-net').innerText = 'S/ ' + net.toFixed(2);
+        }
+
+        // ==================== NUEVAS FUNCIONES DEL ASISTENTE VIRTUAL ====================
+        function sendAssistantMessage() {
+            const input = document.getElementById('assistant-input');
+            const chat = document.getElementById('assistant-chat');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'bg-brand-500/20 p-3 rounded-2xl rounded-tr-none text-xs text-slate-700 dark:text-slate-300 self-end ml-8 assistant-message';
+            userMsg.innerText = '👤 ' + msg;
+            chat.appendChild(userMsg);
+
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                botMsg.className = 'bg-slate-100 dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs text-slate-700 dark:text-slate-300 mr-8 assistant-message';
+                const responses = [
+                    '🔍 Estoy buscando información sobre eso...',
+                    '📦 Puedes encontrar más detalles en el catálogo.',
+                    '💰 El precio mínimo de compra es S/ 150.00 en valor FOB.',
+                    '🚢 Tus importaciones están siendo procesadas.',
+                    '⭐ Te recomiendo revisar la sección de novedades.',
+                    '💳 Aceptamos transferencias bancarias y pagos con tarjeta.',
+                    '📦 Tu pedido #10248 está en proceso de despacho.',
+                    '🎯 Te recomiendo el Serum de Ácido Hialurónico, es muy popular.'
+                ];
+                botMsg.innerText = '🤖 ' + responses[Math.floor(Math.random() * responses.length)];
+                chat.appendChild(botMsg);
+                chat.scrollTop = chat.scrollHeight;
+            }, 600);
+
+            input.value = '';
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function quickAssistantQuestion(question) {
+            document.getElementById('assistant-input').value = question;
+            sendAssistantMessage();
+        }
+
+        function showLoaderOnStart() {
+            const loader = document.getElementById('app-loader');
+            const appFrame = document.getElementById('app-frame');
+            if (!loader || !appFrame) {
+                navigate('screen-splash');
+                return;
+            }
+            appFrame.classList.remove('app-loaded');
+            appFrame.style.filter = 'blur(2px)';
+            setTimeout(() => {
+                loader.classList.add('fade-out');
+                appFrame.classList.add('app-loaded');
+                appFrame.style.filter = '';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    navigate('screen-splash');
+                }, 400);
+            }, 3000);
+        }
+
+        // ==================== INICIALIZACIÓN ====================
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('live-time-ticker').innerText = now.toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }, 1000);
+
+        showLoaderOnStart();
+    </script>
+</body>
+</html>
