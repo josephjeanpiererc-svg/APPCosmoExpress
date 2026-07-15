@@ -266,12 +266,40 @@
             width: 100%;
         }
         #app-frame {
+            position: relative;
+            display: flex;
+            flex-direction: column;
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
             width: 100%;
+            height: 100vh;
             min-height: 100vh;
+            overflow: hidden;
             transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        #drawer-toggle-button {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 60;
+            width: 42px;
+            height: 42px;
+            border-radius: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.95);
+            color: #f8fafc;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 14px 48px rgba(15, 23, 42, 0.18);
+            backdrop-filter: blur(10px);
+        }
+        #drawer-toggle-button:hover {
+            transform: translateY(-1px);
+        }
+        #drawer-toggle-button.hidden {
+            display: none;
         }
         #app-frame.app-loaded {
             opacity: 1;
@@ -279,11 +307,26 @@
             pointer-events: auto;
         }
         #app-viewport {
-            min-height: calc(100vh - 72px);
+            flex: 1;
+            min-height: 0;
             min-width: 0;
+            padding-bottom: 1.5rem;
+            overflow-y: auto;
+            transition: padding-bottom 0.3s ease;
+        }
+        #app-frame.nav-visible #app-viewport {
+            padding-bottom: 8rem;
         }
         .screen {
-            min-height: calc(100vh - 72px);
+            min-height: 100%;
+        }
+        #global-nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            background: inherit;
         }
         @media (max-width: 640px) {
             body {
@@ -374,6 +417,9 @@
                 <i class="fa-solid fa-battery-three-quarters text-sm"></i>
             </div>
         </div>
+        <button id="drawer-toggle-button" class="hidden" type="button" onclick="toggleDrawer()" aria-label="Abrir menú">
+            <i class="fa-solid fa-bars"></i>
+        </button>
 
         <!-- PORTAL PRINCIPAL (Navegación / SPA) -->
         <div class="flex-1 overflow-y-auto relative bg-slate-50 dark:bg-slate-950" id="app-viewport">
@@ -389,7 +435,7 @@
                     <h1 class="text-3xl font-extrabold tracking-tight">Cosmo<span class="text-gold-400">Express</span></h1>
                     <span class="text-[9px] bg-gold-500/20 text-gold-400 px-3 py-1 rounded-full font-bold uppercase tracking-widest border border-gold-500/30">Portal de Importación B2B</span>
                 </div>
-                <button onclick="navigate('screen-welcome')" class="w-full py-4 bg-white text-brand-700 rounded-2xl font-extrabold text-sm shadow-xl active:scale-95 transition-transform">
+                <button id="btn-start" type="button" onclick="navigate('screen-welcome')" class="w-full py-4 bg-white text-brand-700 rounded-2xl font-extrabold text-sm shadow-xl active:scale-95 transition-transform">
                     Acceder al Canal Mayorista <i class="fa-solid fa-chevron-right ml-2"></i>
                 </button>
             </div>
@@ -530,6 +576,33 @@
                     <button onclick="navigate('screen-presale')" class="mt-3 px-3 py-1.5 bg-white text-brand-900 text-[9px] font-extrabold rounded-lg uppercase tracking-wider">Ver Lotes en Tránsito</button>
                 </div>
 
+                <!-- RESUMEN EJECUTIVO ADICIONAL -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <span class="text-[8px] font-bold uppercase text-slate-400">Valor FOB en Stock</span>
+                        <h3 class="text-base font-black text-slate-950 dark:text-white mt-2">S/ 36,240</h3>
+                        <p class="text-[9px] text-slate-400 mt-2">Inventario disponible para despacho inmediato y órdenes confirmadas.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <span class="text-[8px] font-bold uppercase text-slate-400">Pedidos Pendientes</span>
+                        <h3 class="text-base font-black text-brand-500 mt-2">7</h3>
+                        <p class="text-[9px] text-slate-400 mt-2">Órdenes en proceso de consolidación y transporte.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <span class="text-[8px] font-bold uppercase text-slate-400">Próximo Arribo</span>
+                        <h3 class="text-base font-black text-slate-950 dark:text-white mt-2">25 Ago - Callao</h3>
+                        <p class="text-[9px] text-slate-400 mt-2">Contenedor MSCU-1024 con 2 productos clave en ruta.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                        <span class="text-[8px] font-bold uppercase text-slate-400">Rotación de Stock</span>
+                        <h3 class="text-base font-black text-yellow-500 mt-2">4.2x</h3>
+                        <p class="text-[9px] text-slate-400 mt-2">Velocidad de venta estimada en los últimos 30 días.</p>
+                    </div>
+                </div>
+
                 <!-- MENU REJILLA PRINCIPAL INTERCONECTADO -->
                 <div class="grid grid-cols-4 gap-2">
                     <button onclick="navigate('screen-catalogo')" class="bg-white dark:bg-slate-900 p-2.5 rounded-2xl flex flex-col items-center gap-1 text-center border border-slate-100 dark:border-slate-800">
@@ -548,6 +621,32 @@
                         <i class="fa-solid fa-trophy text-yellow-500 text-sm"></i>
                         <span class="text-[8px] font-bold text-slate-600 dark:text-slate-300">Premios</span>
                     </button>
+                </div>
+
+                <!-- SEGUNDA LÍNEA DE SERVICIOS ADICIONALES -->
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-[8px] font-bold uppercase text-slate-400">Resumen Rápido</span>
+                        <span class="text-[8px] text-brand-500 font-bold">Actualizado hoy</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-[9px] text-slate-500">
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">85%</span>
+                            <p class="mt-1">Índice de cumplimiento de pedidos</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">S/ 9,800</span>
+                            <p class="mt-1">Ventas estimadas hoy</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">4</span>
+                            <p class="mt-1">Órdenes urgentes</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">12</span>
+                            <p class="mt-1">Productos top ranking</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- SEGUNDA LÍNEA DE SERVICIOS ADICIONALES -->
@@ -593,10 +692,11 @@
 
                 <!-- Categorías Rápidas -->
                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                    <span class="px-3.5 py-1.5 bg-brand-500 text-white rounded-full text-[10px] font-bold shrink-0 cursor-pointer">Todos</span>
-                    <span class="px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] border dark:border-slate-800 shrink-0 cursor-pointer">Skincare</span>
-                    <span class="px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] border dark:border-slate-800 shrink-0 cursor-pointer">Maquillaje</span>
-                    <span class="px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] border dark:border-slate-800 shrink-0 cursor-pointer">Novedades</span>
+                    <button id="catalog-cat-Todos" onclick="setCatalogCategory('Todos')" class="catalog-category px-3.5 py-1.5 bg-brand-500 text-white rounded-full text-[10px] font-bold shrink-0">Todos</button>
+                    <button id="catalog-cat-Skincare" onclick="setCatalogCategory('Skincare')" class="catalog-category px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] font-bold shrink-0">Skincare</button>
+                    <button id="catalog-cat-Maquillaje" onclick="setCatalogCategory('Maquillaje')" class="catalog-category px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] font-bold shrink-0">Maquillaje</button>
+                    <button id="catalog-cat-Novedades" onclick="setCatalogCategory('Novedades')" class="catalog-category px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] font-bold shrink-0">Novedades</button>
+                    <button id="catalog-cat-Accesorios" onclick="setCatalogCategory('Accesorios')" class="catalog-category px-3.5 py-1.5 bg-white dark:bg-slate-900 text-slate-500 rounded-full text-[10px] font-bold shrink-0">Accesorios</button>
                 </div>
 
                 <!-- Contenedor del listado de lotes -->
@@ -713,6 +813,7 @@
                 <div>
                     <h2 id="detail-p-name" class="text-base font-black text-slate-950 dark:text-white">Nombre de Lote</h2>
                     <p class="text-[10px] text-slate-400 mt-1">Origen: <span id="detail-p-country" class="font-bold">Corea</span> | Certificación: <span class="font-bold">NSOC (Digemid)</span></p>
+                    <p class="text-[10px] text-slate-400 mt-2">Categorías: <span id="detail-p-categories" class="font-bold">Skincare</span></p>
                 </div>
 
                 <!-- Historial de Precios & Rating -->
@@ -846,10 +947,58 @@
 
             <!-- SCREEN 19: PERFIL DE USUARIO CLIENTE - EXISTENTE (NO MODIFICADO) -->
             <div id="screen-profile" class="screen hidden p-4 space-y-4">
-                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 text-center space-y-2">
-                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-16 h-16 object-cover rounded-full mx-auto border-2 border-brand-500">
-                    <h3 class="text-sm font-black text-slate-800 dark:text-white">Bella Distribuciones S.A.C.</h3>
-                    <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full font-bold">RUC: 20123456789</span>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 space-y-4">
+                    <div class="text-center space-y-2">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop" class="w-16 h-16 object-cover rounded-full mx-auto border-2 border-brand-500">
+                        <h3 class="text-sm font-black text-slate-800 dark:text-white">Bella Distribuciones S.A.C.</h3>
+                        <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full font-bold">RUC: 20123456789</span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">📍 Lima</span>
+                            <p class="mt-1">Av. La Marina 123</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">📞 +51 987 654 321</span>
+                            <p class="mt-1">Contacto principal</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">✉️ ventas@belladistribuciones.pe</span>
+                            <p class="mt-1">Correo comercial</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">⭐ Nivel Oro</span>
+                            <p class="mt-1">4,250 puntos</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">💼 Último pedido</span>
+                            <p class="mt-1">#10248 - En proceso</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">⏱️ Cliente desde</span>
+                            <p class="mt-1">Marzo 2024</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">🌐 Sitio web</span>
+                            <p class="mt-1">cosmoexpress.b2b</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">🧾 Sector</span>
+                            <p class="mt-1">Cosméticos y retail</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">💳 Términos</span>
+                            <p class="mt-1">Pago 30 días neto</p>
+                        </div>
+                        <div class="bg-slate-50 dark:bg-slate-950 p-3 rounded-2xl">
+                            <span class="font-black text-slate-900 dark:text-white">🏢 Tipo</span>
+                            <p class="mt-1">Distribuidor mayorista</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl overflow-hidden">
                     <button onclick="navigate('screen-welcome')" class="w-full p-4 text-left text-xs font-bold text-rose-500 border-t dark:border-slate-800 hover:bg-rose-500/10">Cerrar Sesión B2B</button>
@@ -1875,13 +2024,60 @@
             <!-- NUEVA SCREEN: PERFIL COMPLETO -->
             <div id="screen-profile-full" class="screen hidden p-4 space-y-4 fade-in">
                 <button onclick="navigate('screen-profile')" class="text-xs text-slate-400 font-bold"><i class="fa-solid fa-chevron-left mr-1"></i> Volver</button>
-                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 text-center">
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-4 text-center space-y-3">
                     <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&fit=crop" class="w-20 h-20 object-cover rounded-full mx-auto border-4 border-brand-500">
-                    <h3 class="text-sm font-black text-slate-800 dark:text-white mt-2">Bella Distribuciones S.A.C.</h3>
+                    <h3 class="text-sm font-black text-slate-800 dark:text-white">Bella Distribuciones S.A.C.</h3>
                     <span class="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 px-3 py-1 rounded-full font-bold">RUC: 20123456789</span>
                     <div class="flex justify-center gap-4 mt-3">
                         <span class="text-[9px] bg-brand-500/10 text-brand-500 px-3 py-1 rounded-full font-bold">👑 Nivel Oro</span>
                         <span class="text-[9px] bg-yellow-500/10 text-yellow-500 px-3 py-1 rounded-full font-bold">⭐ 4,250 pts</span>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">📍 Dirección</span>
+                        <p class="mt-2">Av. La Marina 123, Lima</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">📞 Teléfono</span>
+                        <p class="mt-2">+51 987 654 321</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">✉️ Email</span>
+                        <p class="mt-2">ventas@belladistribuciones.pe</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">🌐 Web</span>
+                        <p class="mt-2">cosmoexpress.b2b</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3 text-[10px] text-slate-500 dark:text-slate-400">
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">🧾 Sector</span>
+                        <p class="mt-2">Cosméticos & Retail</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">💳 Términos</span>
+                        <p class="mt-2">30 días neto</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">🏢 Tipo</span>
+                        <p class="mt-2">Distribuidor Mayorista</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-3">
+                        <span class="font-black text-slate-800 dark:text-white">⏱️ Jornada</span>
+                        <p class="mt-2">Lun - Vie, 9am - 6pm</p>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-2xl p-4 text-[10px] text-slate-500 dark:text-slate-400">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="font-bold text-slate-800 dark:text-white">Último pedido</span>
+                        <span class="text-[9px] text-brand-500">En proceso</span>
+                    </div>
+                    <p>Pedido #10248 - 15/08/2024</p>
+                    <div class="mt-3 border-t dark:border-slate-800 pt-3">
+                        <span class="font-bold text-slate-800 dark:text-white">Próxima entrega</span>
+                        <p class="mt-1">Rastreo disponible en el panel de tránsito.</p>
                     </div>
                 </div>
                 <div class="space-y-2">
@@ -2111,19 +2307,16 @@
             </div>
 
             <div class="drawer-section-title">Principal</div>
-            <div class="drawer-item active" onclick="navigate('screen-user-dashboard'); toggleDrawer();">
-                <i class="fa-solid fa-house"></i> Inicio
-            </div>
-            <div class="drawer-item" onclick="navigate('screen-catalog-advanced'); toggleDrawer();">
+            <div class="drawer-item" onclick="navigate('screen-catalogo'); toggleDrawer();">
                 <i class="fa-solid fa-cubes"></i> Catálogo
             </div>
-            <div class="drawer-item" onclick="navigate('screen-cart-advanced'); toggleDrawer();">
+            <div class="drawer-item" onclick="navigate('screen-cart'); toggleDrawer();">
                 <i class="fa-solid fa-cart-shopping"></i> Carrito
             </div>
             <div class="drawer-item" onclick="navigate('screen-my-orders'); toggleDrawer();">
                 <i class="fa-solid fa-receipt"></i> Mis Pedidos
             </div>
-            <div class="drawer-item" onclick="navigate('screen-favorites-lists'); toggleDrawer();">
+            <div class="drawer-item" onclick="navigate('screen-favorites'); toggleDrawer();">
                 <i class="fa-solid fa-heart"></i> Favoritos
             </div>
 
@@ -2161,7 +2354,7 @@
             <div class="drawer-item" onclick="navigate('screen-virtual-assistant'); toggleDrawer();">
                 <i class="fa-solid fa-robot"></i> Asistente Virtual
             </div>
-            <div class="drawer-item" onclick="navigate('screen-faq-advanced'); toggleDrawer();">
+            <div class="drawer-item" onclick="navigate('screen-help-center'); toggleDrawer();">
                 <i class="fa-solid fa-circle-question"></i> Preguntas Frecuentes
             </div>
 
@@ -2213,6 +2406,7 @@
                 name: "Serum de Acido", 
                 brand: "K-Beauty Original", 
                 country: "Corea", 
+                categories: ["Skincare"],
                 image: "serum_acido.png",
                 scalePrices: {
                     caja: { qty: 12, price: 96.00 },
@@ -2225,6 +2419,7 @@
                 name: "Paleta Sombras UltraGlow", 
                 brand: "Glow Pro", 
                 country: "EE.UU.", 
+                categories: ["Maquillaje"],
                 image: "Paletasobraltraglow.png",
                 scalePrices: {
                     caja: { qty: 12, price: 264.00 },
@@ -2237,35 +2432,138 @@
                 name: "Tónico Balance Clinic", 
                 brand: "BioSkin", 
                 country: "Francia", 
+                categories: ["Skincare"],
                 image: "tonico.png",
                 scalePrices: {
                     caja: { qty: 12, price: 138.00 },
                     gruesa: { qty: 144, price: 1296.00 },
                     cajon: { qty: 240, price: 1920.00 }
                 }
+            },
+            {
+                id: 4,
+                name: "Serum Vitamina C",
+                brand: "Glow Pro",
+                country: "Argentina",
+                categories: ["Skincare"],
+                image: "SerumVitaminaC.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 108.00 },
+                    gruesa: { qty: 144, price: 1036.00 },
+                    cajon: { qty: 240, price: 1530.00 }
+                }
+            },
+            {
+                id: 5,
+                name: "Mascarilla de Colágeno",
+                brand: "BioSkin",
+                country: "Corea",
+                categories: ["Skincare"],
+                image: "MascarilladeColágeno.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 74.00 },
+                    gruesa: { qty: 144, price: 888.00 },
+                    cajon: { qty: 240, price: 1440.00 }
+                }
+            },
+            {
+                id: 6,
+                name: "Base HD Pro", 
+                brand: "Beauty Luxe",
+                country: "EE.UU.", 
+                categories: ["Maquillaje"],
+                image: "BaseHDPro.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 192.00 },
+                    gruesa: { qty: 144, price: 1848.00 },
+                    cajon: { qty: 240, price: 2760.00 }
+                }
+            },
+            {
+                id: 7,
+                name: "Lash Booster Serum",
+                brand: "NovaGlow",
+                country: "Brasil",
+                categories: ["Skincare", "Novedades"],
+                image: "lashboosterserum.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 132.00 },
+                    gruesa: { qty: 144, price: 1584.00 },
+                    cajon: { qty: 240, price: 2400.00 }
+                }
+            },
+            {
+                id: 8,
+                name: "Rodillo Facial LED",
+                brand: "SkinTech",
+                country: "China",
+                categories: ["Accesorios", "Novedades"],
+                image: "Rollidofacialled.png",
+                scalePrices: {
+                    caja: { qty: 12, price: 216.00 },
+                    gruesa: { qty: 144, price: 2448.00 },
+                    cajon: { qty: 240, price: 3600.00 }
+                }
             }
         ];
 
-        let cart = [];
+        const showNavScreens = [
+            'screen-dashboard', 'screen-user-dashboard', 'screen-catalogo', 'screen-catalog-advanced',
+            'screen-cart', 'screen-cart-advanced', 'screen-tracking', 'screen-tracking-detailed',
+            'screen-profile', 'screen-profile-full', 'screen-my-orders', 'screen-favorites',
+            'screen-favorites-lists', 'screen-help-center', 'screen-promos', 'screen-learning-center-advanced',
+            'screen-cosmo-academy', 'screen-virtual-assistant', 'screen-my-business', 'screen-community',
+            'screen-notifications', 'screen-notifications-advanced'
+        ];
+
+        const navBar = document.getElementById('global-nav-bar');
+        const appFrame = document.getElementById('app-frame');
+        const drawerButton = document.getElementById('drawer-toggle-button');
+        const drawerVisibleScreens = [
+            'screen-dashboard', 'screen-user-dashboard', 'screen-catalogo', 'screen-catalog-advanced',
+            'screen-cart', 'screen-cart-advanced', 'screen-tracking', 'screen-tracking-detailed',
+            'screen-profile', 'screen-profile-full', 'screen-my-orders', 'screen-favorites',
+            'screen-favorites-lists', 'screen-help-center', 'screen-promos', 'screen-learning-center-advanced',
+            'screen-cosmo-academy', 'screen-virtual-assistant', 'screen-my-business', 'screen-community',
+            'screen-notifications', 'screen-notifications-advanced', 'screen-config'
+        ];
+        let selectedCatalogCategory = 'Todos';
+        let selectedCatalogSearch = '';
         let selectedProduct = null;
         let selectedTier = 'caja';
+        let cart = [];
 
-        // ==================== FUNCIONES EXISTENTES (NO MODIFICADAS) ====================
         function navigate(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => screen.classList.add('hidden'));
-            document.getElementById(screenId).classList.remove('hidden');
+            const targetScreen = document.getElementById(screenId);
+            if (!targetScreen) {
+                console.warn(`Pantalla no encontrada: ${screenId}`);
+                return;
+            }
 
-            // Solo mostrar la barra de navegación en las pantallas principales del cliente
-            const showNavScreens = [
-                'screen-dashboard', 'screen-catalogo', 'screen-cart', 'screen-tracking', 'screen-profile'
-            ];
-
-            const navBar = document.getElementById('global-nav-bar');
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.add('hidden');
+            });
+            targetScreen.classList.remove('hidden');
 
             if (showNavScreens.includes(screenId)) {
                 navBar.classList.remove('hidden');
+                appFrame.classList.add('nav-visible');
             } else {
                 navBar.classList.add('hidden');
+                appFrame.classList.remove('nav-visible');
+            }
+
+            if (drawerButton) {
+                if (drawerVisibleScreens.includes(screenId)) {
+                    drawerButton.classList.remove('hidden');
+                } else {
+                    drawerButton.classList.add('hidden');
+                }
+            }
+
+            // Forzar reflow en pantallas con scroll largo para evitar recorte de contenido
+            if (screenId === 'screen-catalogo' || screenId === 'screen-cart' || screenId === 'screen-profile') {
+                document.getElementById('app-viewport').style.paddingBottom = window.getComputedStyle(document.getElementById('app-viewport')).paddingBottom;
             }
 
             // Cerrar drawer al navegar
@@ -2317,7 +2615,23 @@
         function renderCatalog() {
             const container = document.getElementById('catalogo-products-grid');
             container.innerHTML = '';
-            products.forEach(p => {
+
+            const filtered = products.filter(p => {
+                const matchCategory = selectedCatalogCategory === 'Todos' || p.categories.some(cat => cat === selectedCatalogCategory);
+                const matchSearch = !selectedCatalogSearch || [p.name, p.brand, p.country, p.categories.join(' ')].some(field => field.toLowerCase().includes(selectedCatalogSearch));
+                return matchCategory && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-2 bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-6 text-center text-slate-500 dark:text-slate-400">
+                        No se encontraron productos para "${selectedCatalogCategory}"${selectedCatalogSearch ? ` y búsqueda "${selectedCatalogSearch}"` : ''}.
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(p => {
                 const card = document.createElement('div');
                 card.className = "bg-white dark:bg-slate-900 border dark:border-slate-800 rounded-3xl p-3 flex flex-col justify-between h-52 cursor-pointer shadow-sm";
                 card.onclick = () => openProductDetail(p.id);
@@ -2326,6 +2640,10 @@
                         <img src="${p.image}" class="w-full h-full object-cover">
                     </div>
                     <div class="mt-2 space-y-1">
+                        <div class="flex items-center justify-between text-[8px] text-slate-400 uppercase tracking-[0.2em]">
+                            <span>${p.categories.join(' · ')}</span>
+                            <span>${p.brand}</span>
+                        </div>
                         <h4 class="text-[10px] font-black text-slate-850 dark:text-white truncate">${p.name}</h4>
                         <div class="text-[9px] text-slate-400">Desde S/ ${p.scalePrices.cajon.price} (Cajón)</div>
                         <span class="text-xs font-black text-brand-500 block">S/ ${p.scalePrices.caja.price} <span class="text-[8px] text-slate-400">/ Caja</span></span>
@@ -2335,29 +2653,45 @@
             });
         }
 
+        function setCatalogCategory(category) {
+            selectedCatalogCategory = category;
+            document.querySelectorAll('.catalog-category').forEach(btn => {
+                btn.classList.remove('bg-brand-500', 'text-white');
+                btn.classList.add('bg-white', 'dark:bg-slate-900', 'text-slate-500');
+            });
+            const activeBtn = document.getElementById(`catalog-cat-${category}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-white', 'dark:bg-slate-900', 'text-slate-500');
+                activeBtn.classList.add('bg-brand-500', 'text-white');
+            }
+            renderCatalog();
+        }
+
         function openProductDetail(id) {
             selectedProduct = products.find(p => p.id === id);
+            if (!selectedProduct) return;
             selectedTier = 'caja';
 
             document.getElementById('detail-p-image').src = selectedProduct.image;
             document.getElementById('detail-p-name').innerText = selectedProduct.name;
             document.getElementById('detail-p-country').innerText = selectedProduct.country;
-
-            document.getElementById('tier-caja-price').innerText = "S/ " + selectedProduct.scalePrices.caja.price.toFixed(2);
-            document.getElementById('tier-gruesa-price').innerText = "S/ " + selectedProduct.scalePrices.gruesa.price.toFixed(2);
-            document.getElementById('tier-cajon-price').innerText = "S/ " + selectedProduct.scalePrices.cajon.price.toFixed(2);
-
+            document.getElementById('detail-p-categories').innerText = selectedProduct.categories.join(' · ');
             selectWholesaleTier('caja');
             navigate('screen-detalle');
         }
 
         function selectWholesaleTier(tier) {
+            if (!selectedProduct) return;
             selectedTier = tier;
+
             document.getElementById('tier-caja-btn').className = "p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800";
             document.getElementById('tier-gruesa-btn').className = "p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800";
             document.getElementById('tier-cajon-btn').className = "p-2 border rounded-xl text-center border-slate-200 dark:border-slate-800";
-
             document.getElementById(`tier-${tier}-btn`).className = "p-2 border rounded-xl text-center bg-brand-500/10 border-brand-500 text-brand-500";
+
+            document.getElementById('tier-caja-price').innerText = `S/ ${selectedProduct.scalePrices.caja.price.toFixed(2)}`;
+            document.getElementById('tier-gruesa-price').innerText = `S/ ${selectedProduct.scalePrices.gruesa.price.toFixed(2)}`;
+            document.getElementById('tier-cajon-price').innerText = `S/ ${selectedProduct.scalePrices.cajon.price.toFixed(2)}`;
         }
 
         function addToCartCurrent() {
@@ -2548,7 +2882,8 @@
         }
 
         function searchCatalog(value) {
-            console.log('Buscando:', value);
+            selectedCatalogSearch = value.trim().toLowerCase();
+            renderCatalog();
         }
 
         // ==================== NUEVAS FUNCIONES DEL DRAWER ====================
